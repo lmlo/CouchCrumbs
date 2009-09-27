@@ -1,0 +1,16 @@
+History.txt
+Manifest.txt
+PostInstall.txt
+README.rdoc
+Rakefile
+lib/couch_crumbs.rb
+lib/core_ext/array.rb
+lib/couch_crumbs/couch_crumbs.rb
+script/console
+script/destroy
+script/generate
+spec/couch_crumbs_spec.rb
+spec/array_spec.rb
+spec/spec.opts
+spec/spec_helper.rb
+tasks/rspec.rake
