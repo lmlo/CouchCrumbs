@@ -20,7 +20,7 @@ module CouchCrumbs
     #
     def initialize(opts = {})
       self.uri = opts[:uri] if opts.has_key?(:uri)
-      
+
       self.status = JSON.parse(RestClient.get(self.uri))
     end
     
@@ -30,6 +30,17 @@ module CouchCrumbs
       # @todo - add a :refresh argument with a 10 second cache of the DBs
       JSON.parse(RestClient.get(File.join(self.uri, "_all_dbs"))).collect do |database_name|
         Database.new(self, :name => database_name)
+      end
+    end
+    
+    # Return a new random UUID
+    #
+    def uuids(count = 1)
+      uuids = JSON.parse(RestClient.get(File.join(self.uri, "_uuids?count=#{ count }")))["uuids"]
+      if count > 1
+        uuids
+      else
+        uuids.first
       end
     end
     

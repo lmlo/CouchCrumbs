@@ -3,35 +3,45 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 module CouchCrumbs
   
   describe Document do
-  
-    describe "#property" do
+    
+    before do
+      @server = Server.new
       
+      @database = Database.new(@server, :name => "document_specs")
     end
     
-    describe "#view_by" do
+    describe "(class methods)" do
       
-    end
-    
-    describe "#has_many" do
+      describe "#property" do
       
-    end
+      end
     
-    describe "#belongs_to" do
+      describe "#view_by" do
       
-    end
+      end
     
-    describe "#timestamps!" do
+      describe "#has_many" do
       
-    end
+      end
     
-    describe "#save_callback" do
+      describe "#belongs_to" do
       
-    end
+      end
     
-    describe "#validates_with_method" do
+      describe "#timestamps!" do
       
-    end
+      end
     
+      describe "#save_callback" do
+      
+      end
+    
+      describe "#validates_with_method" do
+      
+      end
+    
+    end
+        
   end
   
 end

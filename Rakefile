@@ -17,7 +17,7 @@ $hoe = Hoe.spec 'couch_crumbs' do
   self.version              = "0.0.1"
 end
 
-require 'newgem/tasks'
+#require 'newgem/tasks'
 Dir['tasks/**/*.rake'].each { |t| load t }
 
 # TODO - want other tests/tasks run by default? Add them to the list

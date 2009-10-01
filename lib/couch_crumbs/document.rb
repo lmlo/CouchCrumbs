@@ -4,10 +4,14 @@ module CouchCrumbs
   
   class Document
     
-    include Validatable
+    #include Validatable
     
     attr_accessor :json
-
+    
+    def initialize(database, opts = {})
+      
+    end
+    
     def self.property(name, opts = {})
       @@properties ||= []
     end
@@ -36,6 +40,12 @@ module CouchCrumbs
       
     end
     
+    # Return all documents of this type
+    #
+    def self.all
+      
+    end
+
   end
   
 end

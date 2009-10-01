@@ -46,6 +46,22 @@ module CouchCrumbs
       
     end
     
+    describe "#uuids" do
+      
+      before do
+        @server = Server.new
+      end
+      
+      it "should return a single UUID" do
+        @server.uuids.should match(/[a-z0-9]{32}/i)
+      end
+      
+      it "should return multiple UUIDs" do
+        @server.uuids(10).size.should eql(10)
+      end
+      
+    end
+    
   end
 
 end
