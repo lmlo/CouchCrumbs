@@ -2,41 +2,31 @@ $:.unshift(File.dirname(__FILE__))
 
 require "core_ext/array.rb"
 
-require "couch_crumbs/couch_server.rb"
+require "couch_crumbs/server.rb"
+require "couch_crumbs/database.rb"
+require "couch_crumbs/document.rb"
 
 module CouchCrumbs
 
   # Connect to a specific couch server/database
   #
   # ==== Parameters
-  # server<String>:: host/port in URI form
-  # database<String>:: database name
+  # server_uri<String>:: host/port in URI form
+  # default_database<String>:: default database name
   #
-  def self.connect(opts = {})
-    opts = {
-      :server     => CouchServer::default_server_uri,
-      :database   => CouchServer::default_database
-    }.merge(opts)
-
-    CouchServer.new(opts)
-  end
-  
-  #===========================================================================
-  
-  module ClassMethods
+  def self.connect(opts = {})    
+    @@server = Server.new(:uri => opts[:server_uri])
+    @@database = Database.new(@@server, :name => opts[:default_database])
     
+    {:success => true, :server => @@server, :database => @@database}
   end
   
-  module InstanceMethods
-    
+  def self.default_server
+    @@server or raise "servers are only available after calling CouchCrumbs::connect"
   end
   
-  #===========================================================================
-  
-  # :nodoc:
-  def self.included(base)
-    base.extend(ClassMethods)
-    base.send(:include, InstanceMethods)
+  def self.default_database
+    @@database or raise "databases are only available after calling CouchCrumbs::connect"
   end
-    
+  
 end

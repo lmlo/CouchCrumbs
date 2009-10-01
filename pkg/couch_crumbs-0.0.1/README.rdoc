@@ -16,11 +16,11 @@ Small glue library for CouchDB-based apps.
 
 == REQUIREMENTS:
 
-* FIX (list of requirements)
+    sudo gem install rest_client, json, validatable
 
 == INSTALL:
 
-* FIX (sudo gem install, anything else)
+    sudo gem install
 
 == LICENSE:
 

@@ -4,8 +4,12 @@ describe CouchCrumbs do
 
   describe "#connect" do
     
-    it "should connect to a default server" do
-      CouchCrumbs.connect.should_not be_nil
+    it "should attempt to connect to a default server" do
+      status = CouchCrumbs.connect()
+      
+      status[:success].should be_true
+      status[:server].should be_kind_of(CouchCrumbs::Server)
+      status[:database].should be_kind_of(CouchCrumbs::Database)
     end
     
   end
