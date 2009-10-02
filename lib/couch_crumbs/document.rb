@@ -5,10 +5,11 @@ module CouchCrumbs
   class Document
     
     #include Validatable
+
+    attr_accessor :json, :database
     
-    attr_accessor :json
-    
-    def initialize(database, opts = {})
+    def initialize(database = nil, opts = {})
+      self.database = database || CouchCrumbs::default_database
       
     end
     

@@ -15,18 +15,23 @@ module CouchCrumbs
   # default_database<String>:: default database name
   #
   def self.connect(opts = {})    
-    @@server = Server.new(:uri => opts[:server_uri])
-    @@database = Database.new(@@server, :name => opts[:default_database])
+    @@default_server = Server.new(:uri => opts[:server_uri])
+    @@default_database = Database.new(@@default_server, :name => opts[:default_database])
     
-    {:success => true, :server => @@server, :database => @@database}
+    # return true if both server and database were instantiated 
+    (@@default_server && @@default_database)
   end
   
+  # Return a default server for use
+  #
   def self.default_server
-    @@server or raise "servers are only available after calling CouchCrumbs::connect"
+    @@default_server or raise "servers are only available after calling CouchCrumbs::connect"
   end
   
+  # Return a default database that models will use
+  #
   def self.default_database
-    @@database or raise "databases are only available after calling CouchCrumbs::connect"
+    @@default_database or raise "databases are only available after calling CouchCrumbs::connect"
   end
   
 end

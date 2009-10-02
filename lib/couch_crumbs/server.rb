@@ -7,33 +7,27 @@ module CouchCrumbs
 
     DEFAULT_URI = "http://couchdb.local:5984".freeze
     
-    attr_writer :uri
-    attr_accessor :status
-  
-    # Return a sensible default host/port string for a CouchDB server
-    #
-    def uri
-      @uri ||= DEFAULT_URI
-    end
-    
+    attr_accessor :uri, :status
+
     # Create a new instance of Server
     #
     def initialize(opts = {})
-      self.uri = opts[:uri] if opts.has_key?(:uri)
+      self.uri = opts[:uri] || DEFAULT_URI
 
       self.status = JSON.parse(RestClient.get(self.uri))
     end
     
     # Return an array of databases
     #
+    # @todo - add a :refresh argument with a 10 second cache of the DBs
+    #
     def databases
-      # @todo - add a :refresh argument with a 10 second cache of the DBs
       JSON.parse(RestClient.get(File.join(self.uri, "_all_dbs"))).collect do |database_name|
         Database.new(self, :name => database_name)
       end
     end
     
-    # Return a new random UUID
+    # Return a new random UUID for use in documents
     #
     def uuids(count = 1)
       uuids = JSON.parse(RestClient.get(File.join(self.uri, "_uuids?count=#{ count }")))["uuids"]

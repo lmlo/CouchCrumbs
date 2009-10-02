@@ -9,27 +9,23 @@ module CouchCrumbs
     end
     
     describe "#initialize" do
-      
-      #it "should return an existing database" do
-      #  @original = Database.new(@server, :name => "original")
-      #  
-      #  Database.new(@server, :name => "original").should be_eql(@original)
-      #end
-      
+
       it "should create a new database" do
         Database.new(@server, :name => "database_#{ rand(1_000_000) }").should be_kind_of(Database)
       end
+      
+      it "should return an existing database"
       
     end
     
     describe "#destroy" do
       
       before do
-        @database = Database.new(@server)
+        Database.new(@server, :name => "destroy").destroy
       end
       
-      it "should destroy a database" do
-        @database.destroy.should be_true
+      it "should destroy a database" do        
+        @server.databases.collect{ |db| db.name }.should_not include("destroy")
       end
       
     end

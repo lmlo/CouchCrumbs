@@ -4,30 +4,19 @@ module CouchCrumbs
     
     DEFAULT_NAME = "couch_crumbs_database".freeze
     
-    attr_accessor :server, :database_uri
-    attr_writer :name
-    
-    # Return the database name
-    #
-    def name
-      @name ||= DEFAULT_NAME
-    end
-    
+    attr_accessor :server, :database_uri, :name
+
     # Get or create a database
     #
     def initialize(server, opts = {})
       self.server = server
-      self.name = opts[:name] if opts.has_key?(:name)
-      self.database_uri = File.join("#{ server.uri }", self.name)
-      
-      status = nil
-      
+      self.name = opts[:name] || DEFAULT_NAME
+      self.database_uri = File.join(server.uri, self.name)
+
       begin
-        status = RestClient.get(database_uri)
+        RestClient.get(database_uri)
       rescue RestClient::ResourceNotFound
-        status = RestClient.put(database_uri, {})
-      rescue Exception => e
-        warn e
+        RestClient.put(database_uri, {})
       end
     end
 
