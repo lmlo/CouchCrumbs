@@ -12,7 +12,10 @@ script/console
 script/destroy
 script/generate
 spec/couch_crumbs_spec.rb
-spec/array_spec.rb
+spec/core_ext/array_spec.rb
+spec/couch_crumbs/database_spec.rb
+spec/couch_crumbs/document_spec.rb
+spec/couch_crumbs/server_spec.rb
 spec/spec.opts
 spec/spec_helper.rb
 tasks/rspec.rake

@@ -11,7 +11,7 @@ describe Array do
     end
     
     it "should destroy all" do
-      @object.should_receive(:destroy).once
+      @object.should_receive(:destroy!).once
       
       @array.all.destroy!
     end

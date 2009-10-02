@@ -7,7 +7,10 @@ require "couch_crumbs/database.rb"
 require "couch_crumbs/document.rb"
 
 module CouchCrumbs
-
+  
+  # Defaults
+  @@default_server = @@default_database = nil
+  
   # Connect to a specific couch server/database
   #
   # ==== Parameters
@@ -16,22 +19,22 @@ module CouchCrumbs
   #
   def self.connect(opts = {})    
     @@default_server = Server.new(:uri => opts[:server_uri])
-    @@default_database = Database.new(@@default_server, :name => opts[:default_database])
+    @@default_database = Database.new(:name => opts[:default_database])
     
     # return true if both server and database were instantiated 
-    (@@default_server && @@default_database)
+    (@@default_server && @@default_database) ? true : (raise "unable to connect CouchCrumbs to a CouchDB instance")
   end
   
   # Return a default server for use
   #
   def self.default_server
-    @@default_server or raise "servers are only available after calling CouchCrumbs::connect"
+    @@default_server or (raise "default server is only available after calling CouchCrumbs::connect")
   end
   
   # Return a default database that models will use
   #
   def self.default_database
-    @@default_database or raise "databases are only available after calling CouchCrumbs::connect"
+    @@default_database or (raise "default database is only available after calling CouchCrumbs::connect")
   end
   
 end

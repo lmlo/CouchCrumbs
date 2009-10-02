@@ -13,7 +13,11 @@ Small glue library for CouchDB-based apps.
 == SYNOPSIS:
 
   FIX (code sample of usage)
-
+  
+  === CALLBACKS:
+    
+    before_create, after_create, before_save, after_save
+    
 == REQUIREMENTS:
 
     sudo gem install rest_client, json, validatable

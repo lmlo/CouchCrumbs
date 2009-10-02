@@ -23,7 +23,7 @@ module CouchCrumbs
     #
     def databases
       JSON.parse(RestClient.get(File.join(self.uri, "_all_dbs"))).collect do |database_name|
-        Database.new(self, :name => database_name)
+        Database.new(:name => database_name)
       end
     end
     
