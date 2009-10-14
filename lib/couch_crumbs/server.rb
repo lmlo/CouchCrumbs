@@ -31,6 +31,7 @@ module CouchCrumbs
     #
     def uuids(count = 1)
       uuids = JSON.parse(RestClient.get(File.join(self.uri, "_uuids?count=#{ count }")))["uuids"]
+      
       if count > 1
         uuids
       else

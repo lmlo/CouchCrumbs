@@ -24,9 +24,7 @@ module CouchCrumbs
           @resource.name.should eql("Sleepy")
         end
         
-        it "should persist named properties" do
-          $TRIP = true
-                   
+        it "should persist named properties" do                   
           Resource.get!(@resource.id).name.should eql("Sleepy")
         end
         
@@ -35,30 +33,45 @@ module CouchCrumbs
         end
         
       end
-    
-      describe "#view_by" do
-      
-      end
-    
-      describe "#has_many" do
-      
-      end
-    
-      describe "#belongs_to" do
-      
-      end
-    
+            
       describe "#timestamps!" do
+
+      end
+
+      describe "#view_with" do
+        
+        it "should link a JavaScript document as a permanent view"
       
       end
     
-      describe "#save_callback" do
+      describe "#parent_document" do
       
+        it "should relate a parent document"
+        
       end
     
+      describe "#child_document" do
+        
+        it "should relate a single child document"
+        
+      end
+    
+      describe "#child_documents" do
+        
+        it "should relate multiple child documents"
+        
+      end
+      
+      describe "#related_documents" do
+        
+        it "should relate many documents to many documents"
+        
+      end
+
       describe "#validates_with_method" do
       
       end
+      
       
       describe "#create" do
         
@@ -111,15 +124,7 @@ module CouchCrumbs
         end
         
       end
-      
-      describe "#initialize (new document)" do
-              
-      end
-      
-      describe "#initialize (existing document)" do
-        
-      end
-      
+
       describe "#save" do
         
         before do

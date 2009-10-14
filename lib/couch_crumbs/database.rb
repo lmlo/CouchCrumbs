@@ -22,19 +22,19 @@ module CouchCrumbs
     end
     
     # Return an array of all documents
-    def documents(descending = false)      
+    def documents(descending = false)
       JSON.parse(RestClient.get(File.join(uri, "_all_docs?descending=#{ descending }")))["rows"].collect do |row|        
         Document.get!(row["id"])
       end
     end
     
-    # Delete this database from the server
+    # Delete database from the server
     #
     def destroy!
-      result = JSON.parse(RestClient.delete(uri))["ok"]
-      
       freeze
       
+      result = JSON.parse(RestClient.delete(uri))["ok"]
+            
       result
     end
 

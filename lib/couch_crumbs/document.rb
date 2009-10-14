@@ -12,14 +12,15 @@ module CouchCrumbs
         
         attr_accessor :database, :uri, :raw
         attr_writer :type
-
+        
+        # Override document #initialize
         def initialize(opts = {})
           raise ArgumentError.new("opts must be hash-like: #{ opts }") unless opts.respond_to?(:[])
-                    
-          # Per document databases (optional)
+
+          # Per document/instance-level databases (of course, optional)
           self.database = opts[:database] || CouchCrumbs::default_database
           
-          # If :json is present, we just parse an existing document
+          # If :json is present, we just parse it as an existing document
           if opts[:json]
             self.raw = JSON.parse(opts[:json])
           else
@@ -30,14 +31,15 @@ module CouchCrumbs
             # New documents need to have a 'type' set
             self.raw["type"] = self.type = self.class.name.split('::').last
 
-            # @todo - turn all opts keys into symbols
+            # @todo - turn all opts keys into symbols (to grab HTML inputs)
             
-            # Property inits
+            # Init named properties
             self.class.properties.each do |name|
               self.raw[name.to_s] = opts[name]
             end
           end
           
+          # The specific CouchDB URI
           self.uri = File.join(database.uri, id)
         end
 
@@ -45,7 +47,7 @@ module CouchCrumbs
       base.send(:include, InstanceMethods)
     end
     
-    # Return a specific document given an id
+    # Return a specific document type given an exact id
     #
     def self.get!(id)
       json = RestClient.get(File.join(CouchCrumbs::default_database.uri, id))
@@ -58,12 +60,10 @@ module CouchCrumbs
 
       document
     end
-    
-    #include Validatable
-    
+        
     module ClassMethods
       
-      # Return a specific document given an id
+      # Return a specific document given an exact id
       #
       def get!(id)
         json = RestClient.get(File.join(CouchCrumbs::default_database.uri, id))
@@ -79,6 +79,7 @@ module CouchCrumbs
 
       # Create and save a new document
       # @todo - add before_create and after_create callbacks
+      #
       def create(opts = {})
         document = new(opts)
 
@@ -88,7 +89,9 @@ module CouchCrumbs
 
         document
       end
-
+      
+      # Add a named property to a document type
+      #
       def property(name, opts = {})
         self.properties << name.to_sym
         
@@ -104,33 +107,58 @@ module CouchCrumbs
         end
       end
       
+      # Return all named properties for this document type
+      #
       def properties
         @@properties ||= []
       end
       
-      def view_by(name, opts = {})
+      #=======================================================================
+      
+      # Link to a JavaScript file to use as a permanent view
+      def view_with(name, opts = {})
 
       end
 
-      def has_many(models, opts = {})
+      # Like belongs_to :parent
+      #
+      def parent_document(model, opts = {})
 
       end
-
-      def belongs_to(model, opts = {})
+      
+      # Like has_one :child
+      #
+      def child_document(model, opts = {})
+        
+      end
+      
+      # Like has_many :children
+      #
+      def child_documents(models, opts = {})
 
       end
-
+      
+      # Like has_and_belongs_to_many :cousins
+      #
+      def related_documents(model, opts = {})
+        
+      end
+      
+      # Append default timestamps as named properties
+      #
       def timestamps!
 
       end
-
-      def save_callback(point, opts = {})
-
-      end
-
+      
+      # @todo life cycle callbacks
+      
+      # @todo validation methods
+      
       def validates_with_method(method_name)
 
       end
+      
+      #=======================================================================
       
     end
     
