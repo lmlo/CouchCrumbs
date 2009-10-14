@@ -2,6 +2,14 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
   
+  class Resource     
+    
+    include CouchCrumbs::Document
+    
+    property :name
+    
+  end
+  
   describe Database do
         
     describe "#initialize" do
@@ -19,13 +27,15 @@ module CouchCrumbs
       before do
         @database = CouchCrumbs::default_database
 
-        @database.documents.destroy!
-      
-        @document = Document.create
+        @resource = Resource.create(:database => @database)
       end
       
-      it "should return an array of all documents" do
-        @database.documents.collect{ |doc| doc.id }.should eql([@document.id])
+      it "should return an array of all documents" do        
+        @database.documents.collect{ |doc| doc.id }.should eql([@resource.id])
+      end
+      
+      after do
+        @database.documents.destroy!
       end
       
     end

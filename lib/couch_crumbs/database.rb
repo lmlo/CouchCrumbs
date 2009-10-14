@@ -23,7 +23,7 @@ module CouchCrumbs
     
     # Return an array of all documents
     def documents(descending = false)      
-      JSON.parse(RestClient.get(File.join(uri, "_all_docs?descending=#{ descending }")))["rows"].collect do |row|
+      JSON.parse(RestClient.get(File.join(uri, "_all_docs?descending=#{ descending }")))["rows"].collect do |row|        
         Document.get!(row["id"])
       end
     end
