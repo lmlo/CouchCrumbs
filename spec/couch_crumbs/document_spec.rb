@@ -177,7 +177,15 @@ module CouchCrumbs
       
       describe "#update_attributes" do
         
-        it "should update the named properties"
+        before do
+          @resource = Resource.create(:name => "one")
+          
+          @resource.update_attributes(:name => "two")
+        end
+        
+        it "should update the named properties" do
+          Resource.get!(@resource.id).name.should eql("two")          
+        end
         
       end
       

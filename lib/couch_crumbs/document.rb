@@ -217,7 +217,11 @@ module CouchCrumbs
       # Update and save the named properties
       #
       def update_attributes(attributes = {})
-        true
+        attributes.each_pair do |key, value|
+          self.raw[key.to_s] = value
+        end
+        
+        save
       end
       
       # Return true prior to document being saved
