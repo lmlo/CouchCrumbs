@@ -2,11 +2,39 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
   
-  class Resource     
+  class Resource
     
     include CouchCrumbs::Document
     
     property :name
+    
+    def after_initialize
+      true
+    end
+    
+    def before_create
+      true
+    end
+    
+    def after_create
+      true
+    end
+    
+    def before_save
+      true
+    end
+    
+    def after_save
+      true
+    end
+    
+    def before_destroy
+      true
+    end
+    
+    def after_destroy
+      true
+    end
     
   end
   
@@ -38,6 +66,12 @@ module CouchCrumbs
 
       end
 
+      describe "#all" do
+        
+        it "should return all documents of type"
+        
+      end
+      
       describe "#view_with" do
         
         it "should link a JavaScript document as a permanent view"
@@ -141,6 +175,12 @@ module CouchCrumbs
         
       end
       
+      describe "#update_attributes" do
+        
+        it "should update the named properties"
+        
+      end
+      
       describe "#new_document?" do
         
         before do
@@ -170,6 +210,91 @@ module CouchCrumbs
         
       end
     
+    end
+    
+    describe "(callbacks)" do
+      
+      before(:each) do
+        @resource = Resource.new
+        
+        # Remove the #freeze method to allow specs to run.
+        @resource.stub!(:freeze)
+      end
+      
+      describe "#after_initialize" do
+                
+        it "should be called"
+        
+      end
+      
+      describe "#before_create" do
+        
+        it "should be called"
+        
+      end
+      
+      describe "#after_create" do
+        
+        it "should be called"
+        
+      end
+      
+      describe "#before_save" do
+        
+        before do
+          @resource.should_receive(:before_save).once
+        end
+        
+        it "should be called" do
+          @resource.save
+        end
+        
+        after do
+          @resource.destroy!
+        end
+        
+      end
+      
+      describe "#after_save" do
+        
+        before do
+          @resource.should_receive(:after_save).once
+        end
+        
+        it "should be called" do
+          @resource.save
+        end
+        
+        after do
+          @resource.destroy!
+        end
+                
+      end
+      
+      describe "#before_destroy" do
+        
+        before do
+          @resource.should_receive(:before_destroy).once
+        end
+        
+        it "should be called" do
+          @resource.destroy!
+        end
+
+      end
+      
+      describe "#after_destroy" do
+        
+        before do
+          @resource.should_receive(:after_destroy).once
+        end
+        
+        it "should be called" do
+          @resource.destroy!
+        end
+        
+      end
+            
     end
         
   end

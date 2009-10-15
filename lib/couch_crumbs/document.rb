@@ -115,7 +115,18 @@ module CouchCrumbs
       
       #=======================================================================
       
+      # Retrieve all documents of type
+      def all
+        []
+      end
+      
+      # Create a default view on a given property
+      def view_by(property, opts = {})
+        
+      end
+      
       # Link to a JavaScript file to use as a permanent view
+      #
       def view_with(name, opts = {})
 
       end
@@ -152,6 +163,10 @@ module CouchCrumbs
       
       # @todo life cycle callbacks
       
+      def save_callback(target, opts = {})
+        
+      end
+      
       # @todo validation methods
       
       def validates_with_method(method_name)
@@ -187,14 +202,24 @@ module CouchCrumbs
       def save
         raise "unable to save frozen documents" if frozen?
 
+        before_save if respond_to?(:before_save)
+        
         result = JSON.parse(RestClient.put(uri, self.raw.to_json))
 
         self.raw["_id"] = result["id"]
         self.raw["_rev"] = result["rev"]
-
+        
+        after_save if respond_to?(:after_save)
+        
         result["ok"]
       end
     
+      # Update and save the named properties
+      #
+      def update_attributes(attributes = {})
+        true
+      end
+      
       # Return true prior to document being saved
       #
       def new_document?
@@ -204,15 +229,26 @@ module CouchCrumbs
       # Remove document from the database
       #
       def destroy!
+        before_destroy if respond_to?(:before_destroy)
+
         freeze
         
-        # Since new documents haven't been saved yet, simply return true
+        # destruction status
+        status = nil
+        
+        # Since new documents haven't been saved yet, and frozen documents
+        # *can't* be saved, simply return true here.
         if new_document?
-          true
+          status = true
         else
           result = JSON.parse(RestClient.delete(File.join(uri, "?rev=#{ self.rev }")))
-          result["ok"]
+  
+          status = result["ok"]
         end
+        
+        after_destroy if respond_to?(:after_destroy)
+        
+        status
       end
       
     end
