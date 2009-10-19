@@ -54,7 +54,8 @@ module CouchCrumbs
       
       result = JSON.parse(json)
       
-      document = eval(result["type"]).new(
+      # Eval with basic filtering (trusting your database)
+      document = eval(result["type"].gsub(/\W/i, '')).new(
         :json => json
       )
 
