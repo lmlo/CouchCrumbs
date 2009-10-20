@@ -12,13 +12,18 @@ An early/small library for CouchDB-based apps.
 - Automatic timestamps (created_at/updated_at)
 - Per-class database settings
 
+------------------------------------
+
+- manual/automatic views
+- relationships
+
 == SYNOPSIS:
 
   FIX (code sample of usage)
   
   === CALLBACKS:
     
-    before_create, after_create, before_save, after_save
+    before_save, after_save
     
 == REQUIREMENTS:
 
