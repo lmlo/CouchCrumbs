@@ -106,7 +106,8 @@ module CouchCrumbs
       # Add a named property to a document type
       #
       def property(name, opts = {})
-        self.properties << name.to_sym
+        name = name.to_sym
+        self.properties << name unless self.properties.include?(name) 
         
         class_eval do
           # getter
@@ -123,7 +124,9 @@ module CouchCrumbs
       # Return all named properties for this document type
       #
       def properties
-        @@properties ||= []
+        class_variable_set(:@@properties, []) unless class_variable_defined?(:@@properties)
+        
+        class_variable_get(:@@properties)
       end
       
       #=======================================================================

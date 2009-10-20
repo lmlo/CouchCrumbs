@@ -94,6 +94,10 @@ module CouchCrumbs
           @resource = Resource.create(:name => "Sleepy")
         end
         
+        it "should add a named property" do
+          Resource.properties.should eql([:name])
+        end
+        
         it "should add a named property accessor" do          
           @resource.name.should eql("Sleepy")
         end
