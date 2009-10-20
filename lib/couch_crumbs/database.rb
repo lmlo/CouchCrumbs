@@ -2,7 +2,7 @@ module CouchCrumbs
   
   class Database
     
-    DEFAULT_NAME = "couch_crumbs_database".freeze
+    DEFAULT_NAME = :couch_crumbs_database.freeze
     
     attr_accessor :server, :uri, :name, :status
 
@@ -10,7 +10,7 @@ module CouchCrumbs
     #
     def initialize(opts = {})
       self.server = CouchCrumbs::default_server
-      self.name = opts[:name] || DEFAULT_NAME
+      self.name = (opts[:name] || DEFAULT_NAME).to_s
       self.uri = File.join(server.uri, self.name)
 
       begin

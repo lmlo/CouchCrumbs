@@ -10,16 +10,12 @@ module CouchCrumbs
       base.extend(ClassMethods)
       base.class_eval do
         
-        attr_accessor :database, :uri, :raw
-        attr_writer :type
+        attr_accessor :uri, :raw
         
         # Override document #initialize
         def initialize(opts = {})
           raise ArgumentError.new("opts must be hash-like: #{ opts }") unless opts.respond_to?(:[])
 
-          # Per document/instance-level databases (of course, optional)
-          self.database = opts[:database] || CouchCrumbs::default_database
-          
           # If :json is present, we just parse it as an existing document
           if opts[:json]
             self.raw = JSON.parse(opts[:json])
@@ -29,7 +25,7 @@ module CouchCrumbs
             self.raw["_id"] = opts[:id] || database.server.uuids
             self.raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
             # New documents need to have a 'type' set
-            self.raw["type"] = self.type = self.class.name.split('::').last
+            self.raw["type"] = self.class.name.split('::').last
 
             # @todo - turn all opts keys into symbols (to grab HTML inputs)
             
@@ -47,7 +43,8 @@ module CouchCrumbs
       base.send(:include, InstanceMethods)
     end
     
-    # Return a specific document type given an exact id
+    # Return a specific document type given an exact id (from the 
+    # default_database)
     #
     def self.get!(id)
       json = RestClient.get(File.join(CouchCrumbs::default_database.uri, id))
@@ -64,10 +61,25 @@ module CouchCrumbs
         
     module ClassMethods
       
+      # Return the database to use for this class
+      #
+      def database
+        class_variable_set(:@@database, CouchCrumbs::default_database) unless class_variable_defined?(:@@database)
+        
+        class_variable_get(:@@database)
+      end
+      
+      # Set the database that documents of this type will use (will create
+      # a new database if name does not exist)
+      #
+      def use_database(name)
+        class_variable_set(:@@database, Database.new(:name => name))
+      end
+      
       # Return a specific document given an exact id
       #
       def get!(id)
-        json = RestClient.get(File.join(CouchCrumbs::default_database.uri, id))
+        json = RestClient.get(File.join(database.uri, id))
 
         result = JSON.parse(json)
 
@@ -179,6 +191,11 @@ module CouchCrumbs
     end
     
     module InstanceMethods
+      
+      # Return the class-based database
+      def database
+        self.class.database
+      end
       
       # Return document id (typically a UUID)
       #

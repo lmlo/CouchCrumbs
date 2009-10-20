@@ -2,7 +2,7 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
   
-  class Resource     
+  class Resource
     
     include CouchCrumbs::Document
     
@@ -27,10 +27,10 @@ module CouchCrumbs
       before do
         @database = CouchCrumbs::default_database
 
-        @resource = Resource.create(:database => @database)
+        @resource = Resource.create
       end
       
-      it "should return an array of all documents" do        
+      it "should return an array of all documents" do
         @database.documents.collect{ |doc| doc.id }.should eql([@resource.id])
       end
       

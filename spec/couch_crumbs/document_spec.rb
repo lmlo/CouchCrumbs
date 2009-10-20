@@ -38,9 +38,55 @@ module CouchCrumbs
     
   end
   
+  class AlternateResource
+    
+    include CouchCrumbs::Document
+    
+    property :position
+    
+    use_database :alternate_database
+    
+  end
+  
   describe Document do
 
     describe "(class)" do
+      
+      describe "#database" do
+        
+        before do
+          @database = Resource.database
+        end
+        
+        it "should return the active class-level database (or a default)" do
+          @database.name.should eql(CouchCrumbs::default_database.name)
+        end
+        
+      end
+      
+      describe "#use_database" do
+        
+        before do
+          @alternate = Database.new(:name => "alternate_database")
+        end
+        
+        it "should allow class specific databases" do
+          Resource.database.name.should eql(CouchCrumbs::default_database.name)
+          
+          Resource.use_database(@alternate.name)
+          
+          Resource.database.name.should eql(@alternate.name)
+        end
+        
+        it "should allow class specific databases" do
+          AlternateResource.new.database.name.should eql(@alternate.name)
+        end
+        
+        after do
+          Resource.use_database(CouchCrumbs::default_database.name)
+        end
+        
+      end
       
       describe "#property" do
         
