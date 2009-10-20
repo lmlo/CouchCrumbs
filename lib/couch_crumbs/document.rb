@@ -22,16 +22,15 @@ module CouchCrumbs
           else
             self.raw = {}
             
-            self.raw["_id"] = opts[:id] || database.server.uuids
-            self.raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
-            # New documents need to have a 'type' set
-            self.raw["type"] = self.class.name.split('::').last
-
-            # @todo - turn all opts keys into symbols (to grab HTML inputs)
+            # Init special values
+            raw["_id"] = opts[:id] || database.server.uuids
+            raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
+            raw["type"] = self.class.name.split('::').last
+            raw["created_at"] = Time.now if self.class.properties.include?(:created_at)
             
             # Init named properties
-            self.class.properties.each do |name|
-              self.raw[name.to_s] = opts[name]
+            opts.each_pair do |name, value|
+              send("#{ name }=", value)
             end
           end
           
@@ -76,31 +75,12 @@ module CouchCrumbs
         class_variable_set(:@@database, Database.new(:name => name))
       end
       
-      # Return a specific document given an exact id
+      # Return all named properties for this document type
       #
-      def get!(id)
-        json = RestClient.get(File.join(database.uri, id))
-
-        result = JSON.parse(json)
-
-        document = new(
-          :json => json
-        )
-
-        document
-      end
-
-      # Create and save a new document
-      # @todo - add before_create and after_create callbacks
-      #
-      def create(opts = {})
-        document = new(opts)
-
-        yield document if block_given?
-
-        document.save
-
-        document
+      def properties
+        class_variable_set(:@@properties, []) unless class_variable_defined?(:@@properties)
+        
+        class_variable_get(:@@properties)
       end
       
       # Add a named property to a document type
@@ -120,13 +100,32 @@ module CouchCrumbs
           end
         end
       end
-      
-      # Return all named properties for this document type
+            
+      # Create and save a new document
+      # @todo - add before_create and after_create callbacks
       #
-      def properties
-        class_variable_set(:@@properties, []) unless class_variable_defined?(:@@properties)
+      def create(opts = {})
+        document = new(opts)
+
+        yield document if block_given?
         
-        class_variable_get(:@@properties)
+        document.save
+
+        document
+      end
+      
+      # Return a specific document given an exact id
+      #
+      def get!(id)
+        json = RestClient.get(File.join(database.uri, id))
+
+        result = JSON.parse(json)
+
+        document = new(
+          :json => json
+        )
+
+        document
       end
       
       #=======================================================================
@@ -174,15 +173,11 @@ module CouchCrumbs
       # Append default timestamps as named properties
       #
       def timestamps!
-
+        [:created_at, :updated_at].each do |name|
+          property(name)
+        end
       end
-      
-      # @todo life cycle callbacks
-      
-      def save_callback(target, opts = {})
-        
-      end
-      
+            
       # @todo validation methods
       
       def validates_with_method(method_name)
@@ -219,17 +214,24 @@ module CouchCrumbs
       end
       
       # Save a document to a database
-      # @todo - add before_save and after_save callbacks
+      #
       def save
         raise "unable to save frozen documents" if frozen?
-
+        
+        # Before Callback
         before_save if respond_to?(:before_save)
         
+        # Update timestamps
+        raw["updated_at"] = Time.now if self.class.properties.include?(:updated_at)
+        
+        # Save to the DB
         result = JSON.parse(RestClient.put(uri, self.raw.to_json))
-
+        
+        # Update ID and Rev properties
         self.raw["_id"] = result["id"]
         self.raw["_rev"] = result["rev"]
         
+        # After callback
         after_save if respond_to?(:after_save)
         
         result["ok"]

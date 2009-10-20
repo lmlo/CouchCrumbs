@@ -1,14 +1,16 @@
 = couch_crumbs
 
-* http://github.com/oftenvoid/couch_crumbs
+* http://github.com/lmlo/couch_crumbs
 
 == DESCRIPTION:
 
-Small glue library for CouchDB-based apps.
+An early/small library for CouchDB-based apps.
 
 == FEATURES/PROBLEMS:
 
-* FIX (list of features or problems)
+- Named properties
+- Automatic timestamps (created_at/updated_at)
+- Per-class database settings
 
 == SYNOPSIS:
 

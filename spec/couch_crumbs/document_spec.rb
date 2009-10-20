@@ -8,6 +8,8 @@ module CouchCrumbs
     
     property :name
     
+    timestamps!
+    
     def after_initialize
       true
     end
@@ -95,14 +97,14 @@ module CouchCrumbs
         end
         
         it "should add a named property" do
-          Resource.properties.should eql([:name])
+          Resource.properties.should include(:name)
         end
         
-        it "should add a named property accessor" do          
+        it "should add a named property accessor" do
           @resource.name.should eql("Sleepy")
         end
         
-        it "should persist named properties" do                   
+        it "should persist named properties" do
           Resource.get!(@resource.id).name.should eql("Sleepy")
         end
         
@@ -113,7 +115,13 @@ module CouchCrumbs
       end
             
       describe "#timestamps!" do
-
+        
+        it "should add created_at and updated_at properties" do
+          [:created_at, :updated_at].each do |property|
+            Resource.properties.should include(property)
+          end
+        end
+        
       end
 
       describe "#all" do
@@ -156,15 +164,15 @@ module CouchCrumbs
       
       end
       
-      
       describe "#create" do
         
-        it "should create a new document" do          
+        it "should create a new document" do
           @resource = Resource.create
-          
+      
           @resource.id.should_not be_empty
           @resource.rev.should_not be_empty
-          @resource.should be_kind_of(Resource)
+          @resource.should be_kind_of(Resource)          
+          @resource.created_at.strftime("%Y-%m-%d %H:%M").should eql(Time.now.strftime("%Y-%m-%d %H:%M"))
         end
         
         after do
@@ -215,11 +223,12 @@ module CouchCrumbs
           @resource = Resource.new
         end
         
-        it "should save a document to a database" do          
+        it "should save a document to a database" do
           @resource.save.should be_true
+          @resource.updated_at.strftime("%Y-%m-%d %H:%M").should eql(Time.now.strftime("%Y-%m-%d %H:%M"))
         end
         
-        after do          
+        after do
           @resource.destroy!
         end
         
