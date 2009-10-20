@@ -10,6 +10,8 @@ module CouchCrumbs
     
     timestamps!
     
+    child_documents :alternate_resource
+    
     def after_initialize
       true
     end
@@ -44,10 +46,12 @@ module CouchCrumbs
     
     include CouchCrumbs::Document
     
-    property :position
-    
     use_database :alternate_database
     
+    property :position
+    
+    parent_document :resource
+        
   end
   
   describe Document do
@@ -137,9 +141,39 @@ module CouchCrumbs
       end
     
       describe "#parent_document" do
-      
-        it "should relate a parent document"
         
+        before do
+          @parent = Resource.create
+          
+          @alternate = AlternateResource.create
+        end
+        
+        it "should add a parent_id property" do
+          AlternateResource.properties.should include(:resource_parent_id)
+        end
+        
+        it "should add a parent accessor" do
+          @alternate.should respond_to(:resource)
+        end
+        
+        it "should add a parent= accessor" do
+          @alternate.should respond_to(:resource=)
+        end
+        
+        it "should raise an error if parent has not been saved" do
+          lambda do
+            @alternate.resource = Resource.new
+          end.should raise_error
+        end
+        
+        it "should set the parent document" do
+          @alternate.resource = @parent
+          
+          @alternate.save
+          
+          @alternate.resource.id.should eql(@parent.id)
+        end
+              
       end
     
       describe "#child_document" do
@@ -363,7 +397,7 @@ module CouchCrumbs
       end
             
     end
-        
+           
   end
   
 end

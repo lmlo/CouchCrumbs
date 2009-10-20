@@ -1,5 +1,7 @@
 $:.unshift(File.dirname(__FILE__))
 
+require "facets/string/modulize"
+
 require "core_ext/array.rb"
 
 require "couch_crumbs/server.rb"

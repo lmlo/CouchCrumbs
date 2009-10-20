@@ -27,7 +27,7 @@ An early/small library for CouchDB-based apps.
     
 == REQUIREMENTS:
 
-    sudo gem install rest_client, json, validatable
+    sudo gem install rest_client, json, validatable, english
 
 == INSTALL:
 

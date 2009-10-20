@@ -1,4 +1,4 @@
-require "validatable"
+require "facets/string/modulize"
 
 module CouchCrumbs
   
@@ -149,7 +149,21 @@ module CouchCrumbs
       # Like belongs_to :parent
       #
       def parent_document(model, opts = {})
-
+        property("#{ model }_parent_id")
+        
+        parent_class = eval(model.to_s.modulize)
+        
+        self.class_eval do
+          define_method(model.to_sym) do
+            parent_class.get!(raw["#{ model }_parent_id"])
+          end
+          
+          define_method("#{ model }=".to_sym) do |new_parent|
+            raise ArgumentError.new("parent documents must be saved before children") if new_parent.new_document?
+            
+            raw["#{ model }_parent_id"] = new_parent.id 
+          end
+        end
       end
       
       # Like has_one :child
