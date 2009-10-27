@@ -19,7 +19,6 @@ module CouchCrumbs
     end
     
     # Return an array of databases
-    #
     # @todo - add a :refresh argument with a 10 second cache of the DBs
     #
     def databases

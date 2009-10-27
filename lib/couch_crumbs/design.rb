@@ -90,7 +90,7 @@ class Design
   
   # Return all views of this design doc
   #
-  def views    
+  def views
     raw["views"].collect do |key, value|      
       View.new(({key => value}).to_json)
     end

@@ -3,6 +3,7 @@ class View
   attr_accessor :raw
   
   # Return or create a new view
+  #
   def initialize(json)    
     self.raw = JSON.parse(json)
   end
@@ -20,6 +21,8 @@ class View
     new(template)
   end
   
+  # Return a unique hash of the raw json
+  #
   def hash
     raw.hash
   end

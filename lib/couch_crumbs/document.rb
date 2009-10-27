@@ -116,6 +116,7 @@ module CouchCrumbs
       end
             
       # Create a default view on a given property
+      #
       def simple_view(*args)
         doc_type = name.split('::').last
         
@@ -189,6 +190,7 @@ module CouchCrumbs
       
       # Append default timestamps as named properties
       # @todo - add :created_at as a read-only property
+      #
       def timestamps!
         [:created_at, :updated_at].each do |name|
           property(name)
@@ -196,7 +198,7 @@ module CouchCrumbs
       end
             
       # @todo validation methods
-      
+      #
       def validates_with_method(method_name)
 
       end
