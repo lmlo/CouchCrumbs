@@ -2,14 +2,17 @@ require "facets/string/modulize"
 
 module CouchCrumbs
   
-  # Document is an abstract base module that you mixin to your own classes.
+  # Document is an abstract base module that you mixin to your own classes
+  # to gain access to CouchDB document instances.
   #
   module Document
     
+    # Mixin our document methods
+    #
     def self.included(base)
       base.extend(ClassMethods)
       base.class_eval do
-        
+        # Accessors
         attr_accessor :uri, :raw
         
         # Override document #initialize
@@ -34,30 +37,14 @@ module CouchCrumbs
             end
           end
           
-          # The specific CouchDB URI
+          # This specific CouchDB document URI
           self.uri = File.join(database.uri, id)
         end
-
+        
       end
       base.send(:include, InstanceMethods)
     end
-    
-    # Return a specific document type given an exact id (from the 
-    # default_database)
-    #
-    def self.get!(id)
-      json = RestClient.get(File.join(CouchCrumbs::default_database.uri, id))
-      
-      result = JSON.parse(json)
-      
-      # Eval with basic filtering (trusting your database)
-      document = eval(result["type"].gsub(/\W/i, '')).new(
-        :json => json
-      )
-
-      document
-    end
-        
+            
     module ClassMethods
       
       # Return the database to use for this class
@@ -80,23 +67,23 @@ module CouchCrumbs
       def properties
         class_variable_set(:@@properties, []) unless class_variable_defined?(:@@properties)
         
-        class_variable_get(:@@properties)
+        class_variable_get(:@@properties) || []
       end
       
       # Add a named property to a document type
       #
       def property(name, opts = {})
         name = name.to_sym
-        self.properties << name unless self.properties.include?(name) 
+        properties << name unless properties.include?(name) 
         
         class_eval do
           # getter
           define_method(name.to_sym) do
-            self.raw[name.to_s]
+            raw[name.to_s]
           end
           # setter
           define_method("#{ name }=".to_sym) do |new_value|
-            self.raw[name.to_s] = new_value
+            raw[name.to_s] = new_value
           end
         end
       end
@@ -109,7 +96,7 @@ module CouchCrumbs
 
         yield document if block_given?
         
-        document.save
+        document.save!
 
         document
       end
@@ -127,23 +114,39 @@ module CouchCrumbs
 
         document
       end
+            
+      # Create a default view on a given property
+      def simple_view(*args)
+        doc_type = name.split('::').last
+        
+        # Get the design doc for this document type
+        design = Design.new(database, :name => doc_type.downcase)
+        
+        # Create simple views for the named properties
+        args.each do |property|
+          design.append_view(View.simple(doc_type, property))
+          
+          self.class.instance_eval do
+            define_method("by_#{ property }".to_sym) do
+              JSON.parse(RestClient.get("#{ design.uri }/_view/#{ property }".downcase))["rows"].collect do |row|                
+                get!(row["id"])
+              end
+            end
+          end
+        end
+          
+        # Save the design doc
+        design.save!
+                
+        nil
+      end
       
       #=======================================================================
       
-      # Retrieve all documents of type
-      def all
-        []
-      end
-      
-      # Create a default view on a given property
-      def view_by(property, opts = {})
-        
-      end
-      
       # Link to a JavaScript file to use as a permanent view
       #
-      def view_with(name, opts = {})
-
+      def advanced_view(file_name, opts = {})
+        
       end
 
       # Like belongs_to :parent
@@ -185,7 +188,7 @@ module CouchCrumbs
       end
       
       # Append default timestamps as named properties
-      #
+      # @todo - add :created_at as a read-only property
       def timestamps!
         [:created_at, :updated_at].each do |name|
           property(name)
@@ -215,6 +218,13 @@ module CouchCrumbs
         raw["_id"]
       end
       
+      # Set the document id
+      def id=(new_id)
+        raise "only new documents may set an id" unless new_document?
+        
+        raw["_id"] = new_id
+      end
+      
       # Return document revision
       #
       def rev
@@ -229,7 +239,7 @@ module CouchCrumbs
       
       # Save a document to a database
       #
-      def save
+      def save!
         raise "unable to save frozen documents" if frozen?
         
         # Before Callback
@@ -239,11 +249,11 @@ module CouchCrumbs
         raw["updated_at"] = Time.now if self.class.properties.include?(:updated_at)
         
         # Save to the DB
-        result = JSON.parse(RestClient.put(uri, self.raw.to_json))
+        result = JSON.parse(RestClient.put(uri, raw.to_json))
         
         # Update ID and Rev properties
-        self.raw["_id"] = result["id"]
-        self.raw["_rev"] = result["rev"]
+        raw["_id"] = result["id"]
+        raw["_rev"] = result["rev"]
         
         # After callback
         after_save if respond_to?(:after_save)
@@ -255,10 +265,10 @@ module CouchCrumbs
       #
       def update_attributes(attributes = {})
         attributes.each_pair do |key, value|
-          self.raw[key.to_s] = value
+          raw[key.to_s] = value
         end
         
-        save
+        save!
       end
       
       # Return true prior to document being saved
@@ -282,7 +292,7 @@ module CouchCrumbs
         if new_document?
           status = true
         else
-          result = JSON.parse(RestClient.delete(File.join(uri, "?rev=#{ self.rev }")))
+          result = JSON.parse(RestClient.delete(File.join(uri, "?rev=#{ rev }")))
   
           status = result["ok"]
         end

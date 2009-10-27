@@ -2,15 +2,17 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
   
-  class Resource
+  class Person
     
     include CouchCrumbs::Document
     
     property :name
-    
+        
     timestamps!
     
-    child_documents :alternate_resource
+    child_document :address
+    
+    simple_view :name
     
     def after_initialize
       true
@@ -42,15 +44,15 @@ module CouchCrumbs
     
   end
   
-  class AlternateResource
+  class Address
     
     include CouchCrumbs::Document
     
     use_database :alternate_database
     
-    property :position
+    property :location
     
-    parent_document :resource
+    parent_document :person
         
   end
   
@@ -61,7 +63,7 @@ module CouchCrumbs
       describe "#database" do
         
         before do
-          @database = Resource.database
+          @database = Person.database
         end
         
         it "should return the active class-level database (or a default)" do
@@ -73,23 +75,23 @@ module CouchCrumbs
       describe "#use_database" do
         
         before do
-          @alternate = Database.new(:name => "alternate_database")
+          @address = Database.new(:name => "alternate_database")
         end
         
         it "should allow class specific databases" do
-          Resource.database.name.should eql(CouchCrumbs::default_database.name)
+          Person.database.name.should eql(CouchCrumbs::default_database.name)
           
-          Resource.use_database(@alternate.name)
+          Person.use_database(@address.name)
           
-          Resource.database.name.should eql(@alternate.name)
+          Person.database.name.should eql(@address.name)
         end
         
         it "should allow class specific databases" do
-          AlternateResource.new.database.name.should eql(@alternate.name)
+          Address.new.database.name.should eql(@address.name)
         end
         
         after do
-          Resource.use_database(CouchCrumbs::default_database.name)
+          Person.use_database(CouchCrumbs::default_database.name)
         end
         
       end
@@ -97,23 +99,23 @@ module CouchCrumbs
       describe "#property" do
         
         before do
-          @resource = Resource.create(:name => "Sleepy")
+          @person = Person.create(:name => "Sleepy")
         end
         
         it "should add a named property" do
-          Resource.properties.should include(:name)
+          Person.properties.should include(:name)
         end
         
         it "should add a named property accessor" do
-          @resource.name.should eql("Sleepy")
+          @person.name.should eql("Sleepy")
         end
         
         it "should persist named properties" do
-          Resource.get!(@resource.id).name.should eql("Sleepy")
+          Person.get!(@person.id).name.should eql("Sleepy")
         end
         
         after do
-          @resource.destroy!
+          @person.destroy!
         end
         
       end
@@ -122,7 +124,7 @@ module CouchCrumbs
         
         it "should add created_at and updated_at properties" do
           [:created_at, :updated_at].each do |property|
-            Resource.properties.should include(property)
+            Person.properties.should include(property)
           end
         end
         
@@ -131,6 +133,18 @@ module CouchCrumbs
       describe "#all" do
         
         it "should return all documents of type"
+        
+      end
+      
+      describe "#simple_view" do
+        
+        before do
+          @steve = Person.create(:name => "Steve")
+        end
+        
+        it "should create an appropriate view" do
+          Person.by_name.collect{ |p| p.rev }.should eql([@steve.rev])
+        end
         
       end
       
@@ -143,35 +157,35 @@ module CouchCrumbs
       describe "#parent_document" do
         
         before do
-          @parent = Resource.create
+          @parent = Person.create
           
-          @alternate = AlternateResource.create
+          @address = Address.create
         end
         
         it "should add a parent_id property" do
-          AlternateResource.properties.should include(:resource_parent_id)
+          Address.properties.should include(:person_parent_id)
         end
         
         it "should add a parent accessor" do
-          @alternate.should respond_to(:resource)
+          @address.should respond_to(:person)
         end
         
         it "should add a parent= accessor" do
-          @alternate.should respond_to(:resource=)
+          @address.should respond_to(:person=)
         end
         
         it "should raise an error if parent has not been saved" do
           lambda do
-            @alternate.resource = Resource.new
+            @address.person = Person.new
           end.should raise_error
         end
         
         it "should set the parent document" do
-          @alternate.resource = @parent
+          @address.person = @parent
           
-          @alternate.save
+          @address.save!
           
-          @alternate.resource.id.should eql(@parent.id)
+          @address.person.id.should eql(@parent.id)
         end
               
       end
@@ -201,32 +215,16 @@ module CouchCrumbs
       describe "#create" do
         
         it "should create a new document" do
-          @resource = Resource.create
+          @person = Person.create
       
-          @resource.id.should_not be_empty
-          @resource.rev.should_not be_empty
-          @resource.should be_kind_of(Resource)          
-          @resource.created_at.strftime("%Y-%m-%d %H:%M").should eql(Time.now.strftime("%Y-%m-%d %H:%M"))
+          @person.id.should_not be_empty
+          @person.rev.should_not be_empty
+          @person.should be_kind_of(Person)          
+          @person.created_at.strftime("%Y-%m-%d %H:%M").should eql(Time.now.strftime("%Y-%m-%d %H:%M"))
         end
         
         after do
-          @resource.destroy!
-        end
-        
-      end
-      
-      describe "#get!" do
-        
-        before do
-          @resource = Resource.create
-        end
-        
-        it "should instantiate a specific document given an id" do
-          Document.get!(@resource.id).id.should eql(@resource.id)
-        end
-        
-        after do
-          @resource.destroy!
+          @person.destroy!
         end
         
       end
@@ -238,15 +236,15 @@ module CouchCrumbs
       describe "#initialize" do
         
         before do
-          @resource = Resource.new
+          @person = Person.new
         end
         
         it "should have an id" do
-          @resource.id.should match(/[a-z0-9]{32}/i)
+          @person.id.should match(/[a-z0-9]{32}/i)
         end
         
         it "should have a type" do
-          @resource.type.should eql("Resource")
+          @person.type.should eql("Person")
         end
         
       end
@@ -254,16 +252,16 @@ module CouchCrumbs
       describe "#save" do
         
         before do
-          @resource = Resource.new
+          @person = Person.new
         end
         
         it "should save a document to a database" do
-          @resource.save.should be_true
-          @resource.updated_at.strftime("%Y-%m-%d %H:%M").should eql(Time.now.strftime("%Y-%m-%d %H:%M"))
+          @person.save!.should be_true
+          @person.updated_at.strftime("%Y-%m-%d %H:%M").should eql(Time.now.strftime("%Y-%m-%d %H:%M"))
         end
         
         after do
-          @resource.destroy!
+          @person.destroy!
         end
         
       end
@@ -271,13 +269,13 @@ module CouchCrumbs
       describe "#update_attributes" do
         
         before do
-          @resource = Resource.create(:name => "one")
+          @person = Person.create(:name => "one")
           
-          @resource.update_attributes(:name => "two")
+          @person.update_attributes(:name => "two")
         end
         
         it "should update the named properties" do
-          Resource.get!(@resource.id).name.should eql("two")          
+          Person.get!(@person.id).name.should eql("two")          
         end
         
       end
@@ -285,11 +283,11 @@ module CouchCrumbs
       describe "#new_document?" do
         
         before do
-          @resource = Resource.new
+          @person = Person.new
         end
         
         it "should return true prior to a document being saved" do
-          @resource.new_document?.should be_true
+          @person.new_document?.should be_true
         end
         
       end
@@ -297,15 +295,15 @@ module CouchCrumbs
       describe "#destroy!" do
         
         before do
-          @resource = Resource.create
+          @person = Person.create
         end
         
-        it "should destroy document" do          
-          @resource.destroy!.should be_true
-          @resource.frozen?.should be_true
+        it "should destroy document" do
+          @person.destroy!.should be_true
+          @person.frozen?.should be_true
           
           lambda do
-            Resource.get!(@resource.id)
+            Person.get!(@person.id)
           end.should raise_error(RestClient::ResourceNotFound)
         end
         
@@ -316,10 +314,10 @@ module CouchCrumbs
     describe "(callbacks)" do
       
       before(:each) do
-        @resource = Resource.new
+        @person = Person.new
         
         # Remove the #freeze method to allow specs to run.
-        @resource.stub!(:freeze)
+        @person.stub!(:freeze)
       end
       
       describe "#after_initialize" do
@@ -343,15 +341,15 @@ module CouchCrumbs
       describe "#before_save" do
         
         before do
-          @resource.should_receive(:before_save).once
+          @person.should_receive(:before_save).once
         end
         
         it "should be called" do
-          @resource.save
+          @person.save!
         end
         
         after do
-          @resource.destroy!
+          @person.destroy!
         end
         
       end
@@ -359,15 +357,15 @@ module CouchCrumbs
       describe "#after_save" do
         
         before do
-          @resource.should_receive(:after_save).once
+          @person.should_receive(:after_save).once
         end
         
         it "should be called" do
-          @resource.save
+          @person.save!
         end
         
         after do
-          @resource.destroy!
+          @person.destroy!
         end
                 
       end
@@ -375,11 +373,11 @@ module CouchCrumbs
       describe "#before_destroy" do
         
         before do
-          @resource.should_receive(:before_destroy).once
+          @person.should_receive(:before_destroy).once
         end
         
         it "should be called" do
-          @resource.destroy!
+          @person.destroy!
         end
 
       end
@@ -387,11 +385,11 @@ module CouchCrumbs
       describe "#after_destroy" do
         
         before do
-          @resource.should_receive(:after_destroy).once
+          @person.should_receive(:after_destroy).once
         end
         
         it "should be called" do
-          @resource.destroy!
+          @person.destroy!
         end
         
       end

@@ -8,23 +8,42 @@ An early/small library for CouchDB-based apps.
 
 == FEATURES/PROBLEMS:
 
-- Named properties
-- Automatic timestamps (created_at/updated_at)
-- Per-class database settings
+- named properties
+- timestamps (created_at/updated_at)
+- life-cycle callbacks
+- per-class database settings
+- JavaScript where JavaScript goes (in .js files)
+- simple/advanced views
 
 ------------------------------------
 
-- manual/automatic views
+- standard views can be mixed in (#all, #first, #last)
 - relationships
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+  CouchCrumbs::connect(:default_database => "example_database")
   
-  === CALLBACKS:
+  class Person
     
-    before_save, after_save
+    include CouchCrumbs::Document
     
+    property :name
+     
+    timestamps!
+    
+  end
+  
+  @person = Person.new(:name => "Steve")
+  @person.save!
+  
+  @steve = Person.get!(@person.id)
+  
+  @bill = Person.create(:name => "Bill")
+  
+  @bill.destroy!
+  
+  
 == REQUIREMENTS:
 
     sudo gem install rest_client, json, validatable, english
@@ -37,7 +56,7 @@ An early/small library for CouchDB-based apps.
 
 (The MIT License)
 
-Copyright (c) 2009 Often Void, Inc. full name
+Copyright (c) 2009 Often Void, Inc.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

@@ -7,6 +7,8 @@ require "core_ext/array.rb"
 require "couch_crumbs/server.rb"
 require "couch_crumbs/database.rb"
 require "couch_crumbs/document.rb"
+require "couch_crumbs/design.rb"
+require "couch_crumbs/view.rb"
 
 module CouchCrumbs
   
