@@ -91,7 +91,7 @@ module CouchCrumbs
       # Create and save a new document
       # @todo - add before_create and after_create callbacks
       #
-      def create(opts = {})
+      def create!(opts = {})
         document = new(opts)
 
         yield document if block_given?
@@ -142,20 +142,14 @@ module CouchCrumbs
         nil
       end
       
-      #=======================================================================
-      
-      # Link to a JavaScript file to use as a permanent view
-      #
-      def advanced_view(file_name, opts = {})
-        
-      end
-
       # Like belongs_to :parent
       #
       def parent_document(model, opts = {})
+	      model = model.to_s.downcase
+
         property("#{ model }_parent_id")
         
-        parent_class = eval(model.to_s.modulize)
+        parent_class = eval(model.modulize)
         
         self.class_eval do
           define_method(model.to_sym) do
@@ -174,14 +168,32 @@ module CouchCrumbs
       #
       def child_document(model, opts = {})
         
+        # Get the child document
+        #child_class = eval(model.to_s.modulize)
+         
+        #design = Design.new(child_class.database, :name => model.to_s)
+        #design.append_view(View.simple(child_class, "#{ self.name }_parent_id"))
+        #design.save!
+        
+        # Add child (i.e. person) accessor method
+        
+        nil
       end
+      
+      #=======================================================================
       
       # Like has_many :children
       #
       def child_documents(models, opts = {})
 
       end
-      
+            
+      # Link to a JavaScript file to use as a permanent view
+      #
+      def advanced_view(file_name, opts = {})
+        
+      end
+                  
       # Like has_and_belongs_to_many :cousins
       #
       def related_documents(model, opts = {})
@@ -265,7 +277,7 @@ module CouchCrumbs
     
       # Update and save the named properties
       #
-      def update_attributes(attributes = {})
+      def update_attributes!(attributes = {})
         attributes.each_pair do |key, value|
           raw[key.to_s] = value
         end

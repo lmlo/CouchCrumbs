@@ -1,6 +1,7 @@
 module CouchCrumbs
   
   # Direct representation of a CouchDB database (contains documents).
+  #
   class Database
     
     DEFAULT_NAME = :couch_crumbs_database.freeze

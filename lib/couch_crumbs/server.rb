@@ -4,6 +4,7 @@ require "json"
 module CouchCrumbs
   
   # Represents an instance of a live running CouchDB server
+  #
   class Server
 
     DEFAULT_URI = "http://couchdb.local:5984".freeze

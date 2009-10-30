@@ -56,8 +56,14 @@ module CouchCrumbs
     end
     
     describe "#destroy!" do
-
-      it "should possibly destroy the design document"
+      
+      before do
+        @design = Design.new(@database, :name => "destroy")
+      end
+      
+      it "should destroy the design document" do
+        @design.destroy!.should be_true
+      end
       
     end
     

@@ -4,7 +4,7 @@
 
 == DESCRIPTION:
 
-An early/small library for CouchDB-based apps.
+A small library for CouchDB document-based apps.
 
 == FEATURES/PROBLEMS:
 
@@ -12,51 +12,69 @@ An early/small library for CouchDB-based apps.
 - timestamps (created_at/updated_at)
 - life-cycle callbacks
 - per-class database settings
-- JavaScript where JavaScript goes (in .js files)
-- simple/advanced views
+- simple "finder" views
+- advanced JavaScript views (in .js files)
+- objects are JSON derived hashes (meaning properties support arrays, other hashes, dates, etc.)
+- standard finder views can be mixed in at will (#all, #first, #last)
+- document relationships
 
-------------------------------------
-
-- standard views can be mixed in (#all, #first, #last)
-- relationships
 
 == SYNOPSIS:
 
+  # Connect to a CouchDB server and set the default database
+  # :default_server is optional and defaults to http://couchdb.local/
+  # :default_database is also optional, and is used for classes
+  # that don't otherwise specify a database
   CouchCrumbs::connect(:default_database => "example_database")
   
+  # Create a class
   class Person
     
+    # Mixin document goodness
     include CouchCrumbs::Document
     
+    # Declare some properties
     property :name
-     
+    property :title
+    property :status
+
+    # Add :created_at and :updated_at properties
     timestamps!
     
   end
   
+  # Instantiate a new Person document with properties
   @person = Person.new(:name => "Steve")
+  # Manually set a property
+  @person.title = "CEO"
+  # Save the document (with #before_save and #after_save callbacks)
   @person.save!
   
+
+  # Get a single document from the database
   @steve = Person.get!(@person.id)
+
+   
+  # Instantiate and save a new document in a single call (w/ callbacks)
+  @bill = Person.create!(:name => "Bill", :status => "Retired")
   
-  @bill = Person.create(:name => "Bill")
-  
+  # Destroy a document
   @bill.destroy!
   
   
 == REQUIREMENTS:
 
-    sudo gem install rest_client, json, validatable, english
+    sudo gem install rest_client, json, english
 
 == INSTALL:
 
-    sudo gem install
+    sudo gem install couch_crumbs
 
 == LICENSE:
 
 (The MIT License)
 
-Copyright (c) 2009 Often Void, Inc.
+Copyright (c) 2009 CouchCrumbs project.
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

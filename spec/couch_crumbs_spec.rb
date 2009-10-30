@@ -14,11 +14,5 @@ describe CouchCrumbs do
     end
     
   end
-  
-  describe "#get!" do
-    
-    it "should return a document"
-    
-  end
-  
+
 end

@@ -1,6 +1,5 @@
 History.txt
-Manifest.txt
-PostInstall.txt
+Manifest.txt1
 README.rdoc
 Rakefile
 lib/couch_crumbs.rb

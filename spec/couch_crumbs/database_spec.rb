@@ -22,14 +22,16 @@ module CouchCrumbs
         Database.new.should be_kind_of(Database)
       end
       
-      it "should return an existing database"
+      it "should return an existing database" do
+        Database.new(:name => CouchCrumbs::default_database.name).should be_kind_of(Database)
+      end
       
     end
     
     describe "#documents" do
       
       before do
-        @resource = Resource.create
+        @resource = Resource.create!
       end
       
       it "should return an array of all documents" do
@@ -41,7 +43,7 @@ module CouchCrumbs
       end
       
       after do
-        @database.documents.destroy!
+        @database.documents.select{ |d| d.kind_of?(Document) }.destroy!
       end
       
     end

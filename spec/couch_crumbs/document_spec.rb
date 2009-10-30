@@ -99,7 +99,7 @@ module CouchCrumbs
       describe "#property" do
         
         before do
-          @person = Person.create(:name => "Sleepy")
+          @person = Person.create!(:name => "Sleepy")
         end
         
         it "should add a named property" do
@@ -130,16 +130,10 @@ module CouchCrumbs
         
       end
 
-      describe "#all" do
-        
-        it "should return all documents of type"
-        
-      end
-      
       describe "#simple_view" do
         
         before do
-          @steve = Person.create(:name => "Steve")
+          @steve = Person.create!(:name => "Steve")
         end
         
         it "should create an appropriate view" do
@@ -148,7 +142,7 @@ module CouchCrumbs
         
       end
       
-      describe "#view_with" do
+      describe "#advanced_view" do
         
         it "should link a JavaScript document as a permanent view"
       
@@ -157,9 +151,9 @@ module CouchCrumbs
       describe "#parent_document" do
         
         before do
-          @parent = Person.create
+          @parent = Person.create!
           
-          @address = Address.create
+          @address = Address.create!
         end
         
         it "should add a parent_id property" do
@@ -192,7 +186,9 @@ module CouchCrumbs
     
       describe "#child_document" do
         
-        it "should relate a single child document"
+        it "should relate a single child document" do
+          
+        end
         
       end
     
@@ -207,15 +203,11 @@ module CouchCrumbs
         it "should relate many documents to many documents"
         
       end
-
-      describe "#validates_with_method" do
       
-      end
-      
-      describe "#create" do
+      describe "#create!" do
         
         it "should create a new document" do
-          @person = Person.create
+          @person = Person.create!
       
           @person.id.should_not be_empty
           @person.rev.should_not be_empty
@@ -249,7 +241,7 @@ module CouchCrumbs
         
       end
 
-      describe "#save" do
+      describe "#save!" do
         
         before do
           @person = Person.new
@@ -266,12 +258,12 @@ module CouchCrumbs
         
       end
       
-      describe "#update_attributes" do
+      describe "#update_attributes!" do
         
         before do
-          @person = Person.create(:name => "one")
+          @person = Person.create!(:name => "one")
           
-          @person.update_attributes(:name => "two")
+          @person.update_attributes!(:name => "two")
         end
         
         it "should update the named properties" do
@@ -295,7 +287,7 @@ module CouchCrumbs
       describe "#destroy!" do
         
         before do
-          @person = Person.create
+          @person = Person.create!
         end
         
         it "should destroy document" do
