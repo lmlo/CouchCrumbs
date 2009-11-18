@@ -9,9 +9,7 @@ module CouchCrumbs
     property :name
         
     timestamps!
-    
-    child_document :address
-    
+        
     simple_view :name
     
     def after_initialize
@@ -51,9 +49,7 @@ module CouchCrumbs
     use_database :alternate_database
     
     property :location
-    
-    parent_document :person
-        
+            
   end
   
   describe Document do
@@ -147,63 +143,7 @@ module CouchCrumbs
         it "should link a JavaScript document as a permanent view"
       
       end
-    
-      describe "#parent_document" do
-        
-        before do
-          @parent = Person.create!
-          
-          @address = Address.create!
-        end
-        
-        it "should add a parent_id property" do
-          Address.properties.should include(:person_parent_id)
-        end
-        
-        it "should add a parent accessor" do
-          @address.should respond_to(:person)
-        end
-        
-        it "should add a parent= accessor" do
-          @address.should respond_to(:person=)
-        end
-        
-        it "should raise an error if parent has not been saved" do
-          lambda do
-            @address.person = Person.new
-          end.should raise_error
-        end
-        
-        it "should set the parent document" do
-          @address.person = @parent
-          
-          @address.save!
-          
-          @address.person.id.should eql(@parent.id)
-        end
-              
-      end
-    
-      describe "#child_document" do
-        
-        it "should relate a single child document" do
-          
-        end
-        
-      end
-    
-      describe "#child_documents" do
-        
-        it "should relate multiple child documents"
-        
-      end
-      
-      describe "#related_documents" do
-        
-        it "should relate many documents to many documents"
-        
-      end
-      
+
       describe "#create!" do
         
         it "should create a new document" do
