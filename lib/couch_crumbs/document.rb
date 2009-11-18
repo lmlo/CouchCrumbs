@@ -87,32 +87,14 @@ module CouchCrumbs
           end
         end
       end
-            
-      # Create and save a new document
-      # @todo - add before_create and after_create callbacks
-      #
-      def create!(opts = {})
-        document = new(opts)
-
-        yield document if block_given?
-        
-        document.save!
-
-        document
-      end
       
-      # Return a specific document given an exact id
+      # Append default timestamps as named properties
+      # @todo - add :created_at as a read-only property
       #
-      def get!(id)
-        json = RestClient.get(File.join(database.uri, id))
-
-        result = JSON.parse(json)
-
-        document = new(
-          :json => json
-        )
-
-        document
+      def timestamps!
+        [:created_at, :updated_at].each do |name|
+          property(name)
+        end
       end
             
       # Create a default view on a given property
@@ -121,11 +103,11 @@ module CouchCrumbs
         doc_type = name.split('::').last
         
         # Get the design doc for this document type
-        design = Design.new(database, :name => doc_type.downcase)
+        design = Design.get!(database, :name => doc_type.downcase)
         
         # Create simple views for the named properties
         args.each do |property|
-          design.append_view(View.simple(doc_type, property))
+          design.add_view(View.simple(doc_type, property))
           
           self.class.instance_eval do
             define_method("by_#{ property }".to_sym) do
@@ -140,6 +122,12 @@ module CouchCrumbs
         design.save!
                 
         nil
+      end
+      
+      # Link to a JavaScript file to use as a permanent view
+      #
+      def advanced_view(file_name, opts = {})
+        
       end
       
       # Like belongs_to :parent
@@ -171,8 +159,8 @@ module CouchCrumbs
         # Get the child document
         #child_class = eval(model.to_s.modulize)
          
-        #design = Design.new(child_class.database, :name => model.to_s)
-        #design.append_view(View.simple(child_class, "#{ self.name }_parent_id"))
+        #design = Design.get!(child_class.database, model.to_s)
+        #design.add_view(View.simple(child_class, "#{ self.name }_parent_id"))
         #design.save!
         
         # Add child (i.e. person) accessor method
@@ -187,35 +175,41 @@ module CouchCrumbs
       def child_documents(models, opts = {})
 
       end
-            
-      # Link to a JavaScript file to use as a permanent view
-      #
-      def advanced_view(file_name, opts = {})
-        
-      end
-                  
+      
       # Like has_and_belongs_to_many :cousins
       #
       def related_documents(model, opts = {})
         
       end
-      
-      # Append default timestamps as named properties
-      # @todo - add :created_at as a read-only property
-      #
-      def timestamps!
-        [:created_at, :updated_at].each do |name|
-          property(name)
-        end
-      end
-            
-      # @todo validation methods
-      #
-      def validates_with_method(method_name)
-
-      end
-      
+                  
       #=======================================================================
+      
+      # Create and save a new document
+      # @todo - add before_create and after_create callbacks
+      #
+      def create!(opts = {})
+        document = new(opts)
+
+        yield document if block_given?
+        
+        document.save!
+
+        document
+      end
+      
+      # Return a specific document given an exact id
+      #
+      def get!(id)
+        json = RestClient.get(File.join(database.uri, id))
+
+        result = JSON.parse(json)
+
+        document = new(
+          :json => json
+        )
+
+        document
+      end
       
     end
     

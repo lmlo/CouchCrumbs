@@ -84,13 +84,14 @@ module CouchCrumbs
           # Eval the class (with basic filtering, i.e. trusting your database)
           eval(row["doc"]["type"].gsub(/\W/i, '')).get!(row["id"])
         elsif row["id"] =~ /^\_design\//
-          # Design docs          
-          Design.get!(row["id"], self)
+          # Design docs
+          Design.get!(self, :id => row["id"])
+          #warn "skipping design document with id: #{ row["id"] }"
         else
           # Ignore any other docs
           warn "skipping unknown document with id: #{ row["id"] }"
         end
-      end
+      end.compact
     end
     
     # Return an array of only design documents

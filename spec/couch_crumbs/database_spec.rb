@@ -51,10 +51,10 @@ module CouchCrumbs
     describe "#design_documents" do
       
       before do        
-        @design = Design.new(@database, :name => "spec")
+        @design = Design.get!(@database, :name => "spec")
       end
       
-      it "should return an array of design documents" do                
+      it "should return an array of design documents" do        
         @database.design_documents.collect{ |d| d.rev }.should include(@design.rev)
       end
       
