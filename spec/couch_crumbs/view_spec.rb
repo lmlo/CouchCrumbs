@@ -8,16 +8,16 @@ module CouchCrumbs
     
     property :name
     
-    simple_view :name
+    view_by :name
 
   end
   
   describe View do
         
-    describe "#simple" do
-
+    describe "#basic" do
+      
       it "should return a simple view" do
-        View.simple(Person, :name).should be_kind_of(View)
+        View.basic(Person, :name).should be_kind_of(View)
       end
             
     end
@@ -25,7 +25,7 @@ module CouchCrumbs
     describe "#hash" do
       
       before do
-        @view = View.simple(Person, :name)
+        @view = View.basic(Person, :name)
       end
       
       it "should return a hash value for the raw JSON" do

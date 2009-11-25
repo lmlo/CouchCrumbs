@@ -99,19 +99,19 @@ module CouchCrumbs
             
       # Create a default view on a given property
       #
-      def simple_view(*args)
+      def view_by(*args)
         doc_type = name.split('::').last
-        
+                
         # Get the design doc for this document type
         design = Design.get!(database, :name => doc_type.downcase)
         
         # Create simple views for the named properties
-        args.each do |property|
-          design.add_view(View.simple(doc_type, property))
+        args.each do |prop|
+          design.add_view(View.basic(doc_type, prop))
           
           self.class.instance_eval do
-            define_method("by_#{ property }".to_sym) do
-              JSON.parse(RestClient.get("#{ design.uri }/_view/#{ property }".downcase))["rows"].collect do |row|                
+            define_method("by_#{ prop }".to_sym) do
+              JSON.parse(RestClient.get("#{ design.uri }/_view/#{ prop }".downcase))["rows"].collect do |row|                
                 get!(row["id"])
               end
             end

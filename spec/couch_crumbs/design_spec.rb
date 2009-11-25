@@ -9,7 +9,7 @@ module CouchCrumbs
     property :name
     property :title
         
-    simple_view :name
+    view_by :name
     
   end
   
@@ -79,12 +79,12 @@ module CouchCrumbs
     
     describe "#views" do
       
-      before do                
+      before do
         # Grab the design doc from the Person class declared above
         @design = Design.get!(@database, :name => "person")
       end
       
-      it "should return an array of views" do        
+      it "should return an array of views" do
         @design.views.should_not be_empty
       end
       
@@ -96,7 +96,7 @@ module CouchCrumbs
         # Manually construct a design doc and view on Person
         @design = Design.get!(@database, :name => "append")
         
-        @view = View.simple(Person, :title)
+        @view = View.basic(Person, :title)
         
         @design.add_view(@view)
       end

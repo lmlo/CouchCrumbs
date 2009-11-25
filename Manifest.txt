@@ -1,5 +1,5 @@
 History.txt
-Manifest.txt1
+Manifest.txt
 README.rdoc
 Rakefile
 lib/couch_crumbs.rb
@@ -10,7 +10,7 @@ lib/couch_crumbs/design.rb
 lib/couch_crumbs/document.rb
 lib/couch_crumbs/view.rb
 lib/couch_crumbs/templates/design.js
-lib/couch_crumbs/templates/simple.js
+lib/couch_crumbs/templates/basic.js
 script/console
 script/destroy
 script/generate

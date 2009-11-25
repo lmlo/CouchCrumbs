@@ -34,7 +34,7 @@ module CouchCrumbs
         @resource = Resource.create!
       end
       
-      it "should return an array of all documents" do
+      it "should return an array of all documents" do                
         @database.documents.collect{ |doc| doc.id }.should include(@resource.id)
       end
       
@@ -54,7 +54,7 @@ module CouchCrumbs
         @design = Design.get!(@database, :name => "spec")
       end
       
-      it "should return an array of design documents" do        
+      it "should return an array of design documents" do                
         @database.design_documents.collect{ |d| d.rev }.should include(@design.rev)
       end
       

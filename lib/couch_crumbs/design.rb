@@ -81,7 +81,7 @@ module CouchCrumbs
     
     # Save the design to the database
     #
-    def save!      
+    def save!
       result = JSON.parse(RestClient.put(uri, raw.to_json))
     
       # update our stats

@@ -3,7 +3,9 @@ module CouchCrumbs
   # Based on the raw JSON that make up each view in a design doc.
   #
   class View
-  
+    
+    include CouchCrumbs::Query
+    
     attr_accessor :raw
   
     # Return or create a new view
@@ -14,13 +16,13 @@ module CouchCrumbs
   
     # Return a new view (essentially just the raw JSON)
     #
-    def self.simple(type, property)
+    def self.basic(type, property)
       # Read the 'simple' template
-      template = File.read(File.join(File.dirname(__FILE__), "templates", "simple.js"))
+      template = File.read(File.join(File.dirname(__FILE__), "templates", "basic.js"))
     
-      template.gsub!(/\#view_name/, property.to_s.downcase)
-      template.gsub!(/\#view_type/, type.to_s)
-      template.gsub!(/\#view_property/, property.to_s.downcase)
+      template.gsub!(/\#name/, property.to_s.downcase)
+      template.gsub!(/\#type/, type.to_s)
+      template.gsub!(/\#property/, property.to_s.downcase)
     
       new(template)
     end
@@ -30,7 +32,7 @@ module CouchCrumbs
     def hash
       raw.hash
     end
-  
+    
   end
 
 end

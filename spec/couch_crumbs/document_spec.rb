@@ -10,7 +10,7 @@ module CouchCrumbs
         
     timestamps!
         
-    simple_view :name
+    view_by :name
     
     def after_initialize
       true
@@ -126,13 +126,13 @@ module CouchCrumbs
         
       end
 
-      describe "#simple_view" do
+      describe "#view_by" do
         
         before do
           @steve = Person.create!(:name => "Steve")
         end
         
-        it "should create an appropriate view" do
+        it "should create an appropriate view" do          
           Person.by_name.collect{ |p| p.rev }.should eql([@steve.rev])
         end
         
