@@ -16,6 +16,12 @@ module CouchCrumbs
         
     describe "#basic" do
       
+      before do
+        debugger
+        
+        nil
+      end
+      
       it "should return a simple view" do
         View.basic(Person, :name).should be_kind_of(View)
       end
