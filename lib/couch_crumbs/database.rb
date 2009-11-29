@@ -33,7 +33,7 @@ module CouchCrumbs
         # Regular documents
         if doc["type"]
           # Eval the class (with basic filtering, i.e. trusting your database)
-          eval(doc["type"].gsub(/\W/i, '')).get!(doc["_id"])
+          eval(doc["type"].gsub(/\W/i, '').capitalize!).get!(doc["_id"])
           
         elsif doc["_id"] =~ /^\_design\//
           # Design docs

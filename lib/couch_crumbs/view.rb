@@ -26,7 +26,20 @@ module CouchCrumbs
     
       new(template)
     end
-  
+    
+    # Return an advanced view
+    #
+    def self.advanced(template, opts = {})
+      # Read the 'simple' template
+      template = File.read(template)
+      
+      opts.each do |key, value|
+        template.gsub!(/\##{ key }/, value)
+      end
+      
+      new(template)
+    end
+    
     # Return a unique hash of the raw json
     #
     def hash

@@ -28,7 +28,7 @@ module CouchCrumbs
             # Init special values
             raw["_id"] = opts[:id] || database.server.uuids
             raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
-            raw["type"] = self.class.name.split('::').last
+            raw["type"] = self.class.crumb_type
             raw["created_at"] = Time.now if self.class.properties.include?(:created_at)
             
             # Init named properties
@@ -43,9 +43,15 @@ module CouchCrumbs
         
       end
       base.send(:include, InstanceMethods)
+      base.send(:include, DefaultViews)
     end
             
     module ClassMethods
+      
+      # Return the useful portion of module/class type
+      def crumb_type
+        self.name.split('::').last.downcase
+      end
       
       # Return the database to use for this class
       #
@@ -96,18 +102,22 @@ module CouchCrumbs
           property(name)
         end
       end
-            
+      
+      # Return the design doc for this class
+      #
+      def design_doc
+        Design.get!(database, :name => crumb_type)
+      end
+              
       # Create a default view on a given property
       #
       def view_by(*args)
-        doc_type = name.split('::').last
-                
         # Get the design doc for this document type
-        design = Design.get!(database, :name => doc_type.downcase)
+        design = Design.get!(database, :name => crumb_type.downcase)
         
         # Create simple views for the named properties
         args.each do |prop|
-          design.add_view(View.basic(doc_type, prop))
+          design.add_view(View.basic(crumb_type, prop))
           
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do
@@ -123,13 +133,7 @@ module CouchCrumbs
                 
         nil
       end
-      
-      # Link to a JavaScript file to use as a permanent view
-      #
-      def advanced_view(file_name, opts = {})
-        
-      end
-      
+            
       # Create and save a new document
       # @todo - add before_create and after_create callbacks
       #
@@ -155,6 +159,20 @@ module CouchCrumbs
         )
 
         document
+      end
+      
+      #=======================================================================
+      
+      def has_one(model, opts = {})
+        nil
+      end
+      
+      def has_many(model, opts = {})
+        nil
+      end
+      
+      def belongs_to(model, opts = {})
+        nil
       end
       
     end
@@ -254,6 +272,33 @@ module CouchCrumbs
         after_destroy if respond_to?(:after_destroy)
         
         status
+      end
+      
+    end
+    
+    module DefaultViews
+      
+      # Mixin our document methods
+      #
+      def self.included(base)
+        # Create an advanced view
+        view = View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type)
+        
+        design = base.design_doc
+        
+        # Add the view to the design doc
+        design.add_view(view)
+        
+        # Add the #all method
+        self.class.instance_eval do
+          define_method(:all) do
+            JSON.parse(RestClient.get("#{ design.uri }/_view/all".downcase))["rows"].collect do |row|                
+              get!(row["id"])
+            end
+          end
+        end
+        
+        nil
       end
       
     end

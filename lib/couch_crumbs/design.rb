@@ -113,6 +113,8 @@ module CouchCrumbs
     #
     def add_view(view)
       raw["views"].merge!(view.raw)
+      
+      save!
     end
   
   end

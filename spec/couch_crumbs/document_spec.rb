@@ -125,7 +125,15 @@ module CouchCrumbs
         end
         
       end
-
+      
+      describe "#design_doc" do
+        
+        it "should return the design doc for the given class" do
+          Person.design_doc.should be_kind_of(Design)
+        end
+        
+      end
+      
       describe "#view_by" do
         
         before do
@@ -175,8 +183,8 @@ module CouchCrumbs
           @person.id.should match(/[a-z0-9]{32}/i)
         end
         
-        it "should have a type" do
-          @person.type.should eql("Person")
+        it "should have a type" do          
+          @person.type.should eql("person")
         end
         
       end
@@ -327,7 +335,27 @@ module CouchCrumbs
       end
             
     end
-           
+    
+    describe "(default views)" do
+      
+      describe "#all" do
+        
+        before do
+          @person = Person.create!
+        end
+        
+        it "should return all documents of a certain type" do          
+          Person.all.collect{ |p| p.id }.should eql([@person.id])
+        end
+        
+      end
+      
+    end
+    
+    after(:each) do
+      Person.all.destroy!
+    end
+    
   end
   
 end

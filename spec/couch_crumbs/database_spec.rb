@@ -38,7 +38,7 @@ module CouchCrumbs
         @database.documents.collect{ |doc| doc.id }.should include(@resource.id)
       end
       
-      it "should support optional view parameters" do
+      it "should support optional view parameters" do        
         @database.documents(:key => @resource.id).collect{ |d| d.id }.should eql([@resource.id])
       end
       

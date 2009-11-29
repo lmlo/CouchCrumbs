@@ -6,6 +6,7 @@ lib/couch_crumbs.rb
 lib/core_ext/array.rb
 lib/couch_crumbs/server.rb
 lib/couch_crumbs/database.rb
+lib/couch_crumbs/query.rb
 lib/couch_crumbs/design.rb
 lib/couch_crumbs/document.rb
 lib/couch_crumbs/view.rb
