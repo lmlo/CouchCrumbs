@@ -27,7 +27,9 @@ module CouchCrumbs
       new(template)
     end
     
-    # Return an advanced view
+    # Return an advanced view 
+    # template => path to a .js template
+    # opts => options to gsub into the template
     #
     def self.advanced(template, opts = {})
       # Read the 'simple' template
