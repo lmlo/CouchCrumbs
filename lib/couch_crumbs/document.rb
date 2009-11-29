@@ -111,7 +111,7 @@ module CouchCrumbs
               
       # Create a default view on a given property
       #
-      def view_by(*args)
+      def simple_view(*args)
         # Get the design doc for this document type
         design = Design.get!(database, :name => crumb_type.downcase)
         

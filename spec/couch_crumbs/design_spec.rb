@@ -9,7 +9,7 @@ module CouchCrumbs
     property :name
     property :title
         
-    view_by :name
+    simple_view :name
     
   end
   
