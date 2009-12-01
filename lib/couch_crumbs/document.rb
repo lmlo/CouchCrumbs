@@ -12,6 +12,7 @@ module CouchCrumbs
     def self.included(base)
       base.extend(ClassMethods)
       base.class_eval do
+        
         # Accessors
         attr_accessor :uri, :raw
         
@@ -43,10 +44,17 @@ module CouchCrumbs
         
       end
       base.send(:include, InstanceMethods)
-      base.send(:include, DefaultViews)
+      
+      # Create an advanced view
+      view    = View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type)
+      design  = base.design_doc
+      # Add the view to the design doc
+      design.add_view(View.new(design, "all", view.to_json))
     end
             
     module ClassMethods
+      
+      include CouchCrumbs::Query
       
       # Return the useful portion of module/class type
       def crumb_type
@@ -108,17 +116,23 @@ module CouchCrumbs
       def design_doc
         Design.get!(database, :name => crumb_type)
       end
-              
+      
+      # Return an array of all views for this class
+      #
+      def views
+        design_doc.views
+      end
+            
       # Create a default view on a given property
       #
-      def simple_view(*args)
+      def basic_view(*args)
         # Get the design doc for this document type
         design = Design.get!(database, :name => crumb_type.downcase)
         
         # Create simple views for the named properties
         args.each do |prop|
-          design.add_view(View.basic(crumb_type, prop))
-          
+          design.add_view(View.new(design, prop.to_s, View.basic(crumb_type, prop).to_json))
+        
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do
               JSON.parse(RestClient.get("#{ design.uri }/_view/#{ prop }".downcase))["rows"].collect do |row|                
@@ -133,7 +147,7 @@ module CouchCrumbs
                 
         nil
       end
-            
+      
       # Create and save a new document
       # @todo - add before_create and after_create callbacks
       #
@@ -150,6 +164,8 @@ module CouchCrumbs
       # Return a specific document given an exact id
       #
       def get!(id)
+        raise ArgumentError.new("id must not be blank") if id.empty? or id.nil?
+        
         json = RestClient.get(File.join(database.uri, id))
 
         result = JSON.parse(json)
@@ -159,6 +175,22 @@ module CouchCrumbs
         )
 
         document
+      end
+      
+      # Return an array of all documents of this type
+      #
+      def all(opts = {})
+        # Add the #all method
+        view = design_doc.views(:name => "all")
+      
+        _query("#{ view.uri }".downcase, opts).collect do |doc|
+          if doc["type"]
+            get!(doc["_id"])
+          else
+            warn "skipping unknown document: #{ doc }"
+            nil
+          end
+        end
       end
       
       #=======================================================================
@@ -178,6 +210,8 @@ module CouchCrumbs
     end
     
     module InstanceMethods
+
+      include CouchCrumbs::Query
       
       # Return the class-based database
       def database
@@ -275,34 +309,7 @@ module CouchCrumbs
       end
       
     end
-    
-    module DefaultViews
-      
-      # Mixin our document methods
-      #
-      def self.included(base)
-        # Create an advanced view
-        view = View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type)
         
-        design = base.design_doc
-        
-        # Add the view to the design doc
-        design.add_view(view)
-        
-        # Add the #all method
-        self.class.instance_eval do
-          define_method(:all) do
-            JSON.parse(RestClient.get("#{ design.uri }/_view/all".downcase))["rows"].collect do |row|                
-              get!(row["id"])
-            end
-          end
-        end
-        
-        nil
-      end
-      
-    end
-    
   end
   
 end

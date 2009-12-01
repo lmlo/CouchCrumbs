@@ -6,15 +6,17 @@ module CouchCrumbs
     
     include CouchCrumbs::Query
     
-    attr_accessor :raw
+    attr_accessor :raw, :name, :uri
   
-    # Return or create a new view
+    # Return or create a new view object
     #
-    def initialize(json)
+    def initialize(design, name, json)
+      self.name = name
+      self.uri = File.join(design.uri, "_view", name)
       self.raw = JSON.parse(json)
     end
   
-    # Return a new view (essentially just the raw JSON)
+    # Return a view as a JSON hash
     #
     def self.basic(type, property)
       # Read the 'simple' template
@@ -23,23 +25,23 @@ module CouchCrumbs
       template.gsub!(/\#name/, property.to_s.downcase)
       template.gsub!(/\#type/, type.to_s)
       template.gsub!(/\#property/, property.to_s.downcase)
-    
-      new(template)
+      
+      JSON.parse(template)
     end
     
-    # Return an advanced view 
+    # Return an advanced view as a JSON hash 
     # template => path to a .js template
     # opts => options to gsub into the template
     #
     def self.advanced(template, opts = {})
-      # Read the 'simple' template
+      # Read the given template
       template = File.read(template)
-      
+      # Sub in any opts
       opts.each do |key, value|
         template.gsub!(/\##{ key }/, value)
       end
       
-      new(template)
+      JSON.parse(template)
     end
     
     # Return a unique hash of the raw json

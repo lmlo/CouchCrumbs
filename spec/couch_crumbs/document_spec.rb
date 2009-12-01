@@ -10,7 +10,7 @@ module CouchCrumbs
         
     timestamps!
         
-    simple_view :name
+    basic_view :name
     
     def after_initialize
       true
@@ -134,7 +134,15 @@ module CouchCrumbs
         
       end
       
-      describe "#simple_view" do
+      describe "views" do
+        
+        it "should return an array of all views defined for this class" do
+          Person.views.should be_kind_of(Array)
+        end
+        
+      end
+      
+      describe "#basic_view" do
         
         before do
           @steve = Person.create!(:name => "Steve")
@@ -142,6 +150,10 @@ module CouchCrumbs
         
         it "should create an appropriate view" do
           Person.by_name.collect{ |p| p.rev }.should eql([@steve.rev])
+        end
+        
+        after do
+          @steve.destroy!
         end
         
       end
@@ -183,7 +195,7 @@ module CouchCrumbs
           @person.id.should match(/[a-z0-9]{32}/i)
         end
         
-        it "should have a type" do          
+        it "should have a type" do
           @person.type.should eql("person")
         end
         
@@ -216,6 +228,10 @@ module CouchCrumbs
         
         it "should update the named properties" do
           Person.get!(@person.id).name.should eql("two")          
+        end
+        
+        after do
+          @person.destroy!
         end
         
       end
@@ -348,14 +364,14 @@ module CouchCrumbs
           Person.all.collect{ |p| p.id }.should eql([@person.id])
         end
         
+        after do
+          @person.destroy!
+        end
+        
       end
       
     end
-    
-    after(:each) do
-      Person.all.destroy!
-    end
-    
+        
   end
   
 end

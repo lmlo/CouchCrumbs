@@ -8,34 +8,28 @@ module CouchCrumbs
     
     property :name
     
-    simple_view :name
+    basic_view :name
 
   end
   
   describe View do
         
     describe "#basic" do
-      
-      before do
-        debugger
-        
-        nil
-      end
-      
+            
       it "should return a simple view" do
-        View.basic(Person, :name).should be_kind_of(View)
+        View.basic(Person.crumb_type, :name).should be_kind_of(Hash)
       end
             
     end
     
-    describe "#hash" do
+    describe "#advanced" do
       
       before do
-        @view = View.basic(Person, :name)
+        @view = View.advanced(File.join("lib", "couch_crumbs", "templates", "all.js"), :type => Person.crumb_type)
       end
       
       it "should return a hash value for the raw JSON" do
-        @view.hash.should eql(@view.raw.hash)
+        @view.should be_kind_of(Hash)
       end
       
     end

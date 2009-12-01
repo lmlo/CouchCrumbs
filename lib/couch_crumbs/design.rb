@@ -102,16 +102,23 @@ module CouchCrumbs
     end
   
     # Return all views of this design doc
+    # opts => supply a name to select a specific view
     #
-    def views
-      raw["views"].collect do |key, value|
-        View.new(({key => value}).to_json)
+    def views(opts = {})
+      if opts.has_key?(:name)         
+        View.new(self, opts[:name].to_s, {:name => raw["views"][opts[:name].to_s]}.to_json)
+      else
+        raw["views"].collect do |key, value|
+          View.new(self, key.to_s, {key => value}.to_json)
+        end
       end
     end
   
     # Append a view to the view list
     #
     def add_view(view)
+      raise ArgumentError.new("view must be of kind View: #{ view }") unless view.kind_of?(View)
+      
       raw["views"].merge!(view.raw)
       
       save!

@@ -9,7 +9,7 @@ module CouchCrumbs
     property :name
     property :title
         
-    simple_view :name
+    basic_view :name
     
   end
   
@@ -88,6 +88,10 @@ module CouchCrumbs
         @design.views.should_not be_empty
       end
       
+      it "should support an optional name parameter to single a specific view" do        
+        @design.views(:name => "all").should be_kind_of(View)
+      end
+      
     end
     
     describe "#add_view" do
@@ -96,14 +100,20 @@ module CouchCrumbs
         # Manually construct a design doc and view on Person
         @design = Design.get!(@database, :name => "append")
         
-        @view = View.basic(Person, :title)
+        @view = View.basic(Person.crumb_type, :title)
         
-        @design.add_view(@view)
+        @design.add_view(View.new(@design, "title", @view.to_json))
       end
       
       it "should append a view to the list of views" do
         @design.views.collect{ |v| v.hash }.should eql([@view.hash])
       end
+      
+    end
+    
+    describe "#view" do
+      
+      it "should support getting a specific view"
       
     end
     
