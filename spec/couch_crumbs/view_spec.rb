@@ -8,7 +8,7 @@ module CouchCrumbs
     
     property :name
     
-    basic_view :name
+    simple_view :name
 
   end
   
@@ -17,7 +17,7 @@ module CouchCrumbs
     describe "#basic" do
             
       it "should return a simple view" do
-        View.basic(Person.crumb_type, :name).should be_kind_of(Hash)
+        View.simple(Person.crumb_type, :name).should be_kind_of(Hash)
       end
             
     end

@@ -18,7 +18,7 @@ module CouchCrumbs
   
     # Return a view as a JSON hash
     #
-    def self.basic(type, property)
+    def self.simple(type, property)
       # Read the 'simple' template
       template = File.read(File.join(File.dirname(__FILE__), "templates", "basic.js"))
     

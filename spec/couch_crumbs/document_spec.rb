@@ -7,10 +7,13 @@ module CouchCrumbs
     include CouchCrumbs::Document
     
     property :name
-        
+    property :title
+    
     timestamps!
         
-    basic_view :name
+    simple_view :name
+
+    advanced_view :name => "title", :template => File.join("spec", "couch_crumbs", "templates", "person_title.js")
     
     def after_initialize
       true
@@ -142,7 +145,7 @@ module CouchCrumbs
         
       end
       
-      describe "#basic_view" do
+      describe "#simple_view" do
         
         before do
           @steve = Person.create!(:name => "Steve")
@@ -160,10 +163,20 @@ module CouchCrumbs
       
       describe "#advanced_view" do
         
-        it "should link a JavaScript document as a permanent view"
-      
+        before do
+          @steve = Person.create!(:name => "Steve", :title => "CEO")
+        end
+        
+        it "should create an appropriate advanced view" do          
+          Person.by_title.collect{ |p| p.title }.should eql([@steve.title])
+        end
+        
+        after do
+          @steve.destroy!
+        end
+        
       end
-
+      
       describe "#create!" do
         
         it "should create a new document" do
@@ -360,7 +373,7 @@ module CouchCrumbs
           @person = Person.create!
         end
         
-        it "should return all documents of a certain type" do          
+        it "should return all documents of a certain type" do
           Person.all.collect{ |p| p.id }.should eql([@person.id])
         end
         

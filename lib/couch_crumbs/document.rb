@@ -125,13 +125,13 @@ module CouchCrumbs
             
       # Create a default view on a given property
       #
-      def basic_view(*args)
+      def simple_view(*args)
         # Get the design doc for this document type
-        design = Design.get!(database, :name => crumb_type.downcase)
+        design = design_doc
         
         # Create simple views for the named properties
         args.each do |prop|
-          design.add_view(View.new(design, prop.to_s, View.basic(crumb_type, prop).to_json))
+          design.add_view(View.new(design, prop.to_s, View.simple(crumb_type, prop).to_json))
         
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do
@@ -141,11 +141,28 @@ module CouchCrumbs
             end
           end
         end
-          
-        # Save the design doc
-        design.save!
-                
+        
         nil
+      end
+      
+      # Create an advanced view from a given :template
+      def advanced_view(opts = {})
+        raise ArgumentError.new("opts must contain a :name key") unless opts.has_key?(:name)
+        raise ArgumentError.new("opts must contain a :template key") unless opts.has_key?(:template)
+        
+        design = design_doc
+        
+        view = View.advanced(opts[:template], :type => crumb_type)
+        
+        design.add_view(View.new(design, opts[:name], view.to_json))
+        
+        self.class.instance_eval do
+          define_method("by_#{ opts[:name] }".to_sym) do
+            JSON.parse(RestClient.get("#{ design.uri }/_view/#{ opts[:name] }".downcase))["rows"].collect do |row|                
+              get!(row["id"])
+            end
+          end
+        end
       end
       
       # Create and save a new document
