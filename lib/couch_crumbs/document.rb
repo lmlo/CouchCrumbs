@@ -152,7 +152,7 @@ module CouchCrumbs
         
         design = design_doc
         
-        view = View.advanced(opts[:template], :type => crumb_type)
+        view = View.advanced(opts[:template], opts)
         
         design.add_view(View.new(design, opts[:name], view.to_json))
         
@@ -212,15 +212,33 @@ module CouchCrumbs
       
       #=======================================================================
       
-      def has_one(model, opts = {})
-        nil
+      # Like belongs_to :parent
+      #
+      def belongs_to(model, opts = {})
+        model = model.to_s.downcase
+
+        property("#{ model }_parent_id")
+        
+        parent_class = eval(model.modulize)
+
+        self.class_eval do
+          define_method(model.to_sym) do
+            parent_class.get!(raw["#{ model }_parent_id"])
+          end
+
+          define_method("#{ model }=".to_sym) do |new_parent|
+            raise ArgumentError.new("parent documents must be saved before children") if new_parent.new_document?
+
+            raw["#{ model }_parent_id"] = new_parent.id 
+          end
+        end
       end
       
       def has_many(model, opts = {})
         nil
       end
       
-      def belongs_to(model, opts = {})
+      def has_one(model, opts = {})
         nil
       end
       

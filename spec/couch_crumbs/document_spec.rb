@@ -52,7 +52,9 @@ module CouchCrumbs
     use_database :alternate_database
     
     property :location
-            
+    
+    belongs_to :person
+     
   end
   
   describe Document do
@@ -192,6 +194,42 @@ module CouchCrumbs
           @person.destroy!
         end
         
+      end
+      
+      describe "#belongs_to" do
+
+        before do
+          @parent = Person.create!
+
+          @address = Address.create!
+        end
+
+        it "should add a parent_id property" do
+          Address.properties.should include(:person_parent_id)
+        end
+
+        it "should add a parent accessor" do
+          @address.should respond_to(:person)
+        end
+
+        it "should add a parent= accessor" do
+          @address.should respond_to(:person=)
+        end
+
+        it "should raise an error if parent has not been saved" do
+          lambda do
+            @address.person = Person.new
+          end.should raise_error
+        end
+
+        it "should set the parent document" do
+          @address.person = @parent
+
+          @address.save!
+
+          @address.person.id.should eql(@parent.id)
+        end
+
       end
       
     end
@@ -370,6 +408,8 @@ module CouchCrumbs
       describe "#all" do
         
         before do
+          Person.all.destroy!
+          
           @person = Person.create!
         end
         
