@@ -18,6 +18,10 @@ A small library for CouchDB document-based apps.
 - standard finder views can be mixed in at will (#all, #first, #last)
 - document relationships
 
+#===========================================================================
+
+- Add support for multiple parent/child relationships (refactor parent_id
+into model_name_id)
 
 == SYNOPSIS:
 

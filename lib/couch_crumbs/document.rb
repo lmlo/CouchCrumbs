@@ -155,6 +155,7 @@ module CouchCrumbs
       include CouchCrumbs::Query
       
       # Return the useful portion of module/class type
+      #
       def crumb_type
         self.name.split('::').last.downcase
       end
@@ -244,6 +245,7 @@ module CouchCrumbs
       end
       
       # Create an advanced view from a given :template
+      #
       def advanced_view(opts = {})
         raise ArgumentError.new("opts must contain a :name key") unless opts.has_key?(:name)
         raise ArgumentError.new("opts must contain a :template key") unless opts.has_key?(:template)
@@ -314,7 +316,7 @@ module CouchCrumbs
       
       #=======================================================================
       
-      # Like belongs_to :parent
+      # Like belongs_to :person
       #
       def belongs_to(model, opts = {})
         model = model.to_s.downcase
@@ -334,13 +336,33 @@ module CouchCrumbs
             raw["#{ model }_parent_id"] = new_parent.id 
           end
         end
+        
+        nil
       end
       
       def has_many(model, opts = {})
         nil
       end
       
+      # Like has_one :address
+      #
       def has_one(model, opts = {})
+        model = model.to_s.downcase
+        
+        property("#{ model }_child_id")
+        
+        self.class_eval do
+          define_method(model.to_sym) do
+            eval(model.modulize).get!(raw["#{ model }_child_id"])
+          end
+
+          define_method("#{ model }=".to_sym) do |new_child|
+            raise ArgumentError.new("parent documents must be saved before adding children") if new_document?
+            
+            raw["#{ model }_child_id"] = new_child.id 
+          end
+        end
+        
         nil
       end
       

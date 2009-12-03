@@ -12,7 +12,9 @@ module CouchCrumbs
     property :title
     
     timestamps!
-        
+    
+    has_one :address
+    
     simple_view :name
 
     advanced_view :name => "title", :template => File.join("spec", "couch_crumbs", "templates", "person_title.js")
@@ -201,7 +203,7 @@ module CouchCrumbs
       describe "#belongs_to" do
 
         before do
-          @parent = Person.create!
+          @person = Person.create!
 
           @address = Address.create!
         end
@@ -225,13 +227,44 @@ module CouchCrumbs
         end
 
         it "should set the parent document" do
-          @address.person = @parent
+          @address.person = @person
 
           @address.save!
 
-          @address.person.id.should eql(@parent.id)
+          @address.person.id.should eql(@person.id)
         end
 
+      end
+      
+      describe "#has_one" do
+        
+        before do
+          @person = Person.new
+
+          @address = Address.new
+        end
+        
+        it "should add a model_name_id property to parent class" do
+          Person.properties.should include(:address_child_id)
+        end
+        
+        it "should add a child accessor" do
+          @person.should respond_to(:address)
+        end
+        
+        it "should add a child= accessor" do
+          @person.should respond_to(:address=)
+        end
+        
+        it "should set the child document" do          
+          @person.save!
+          @address.save!
+          
+          @person.address = @address
+          
+          @person.address.id.should eql(@address.id)
+        end
+        
       end
       
     end
