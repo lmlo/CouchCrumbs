@@ -29,7 +29,7 @@ module CouchCrumbs
     #
     def documents(opts = {})
       # Query the special built-in _all_docs view
-      _query(File.join(uri, "_all_docs"), opts).collect do |doc|
+      query(File.join(uri, "_all_docs"), opts).collect do |doc|
         # Regular documents
         if doc["type"]
           # Eval the class (with basic filtering, i.e. trusting your database)

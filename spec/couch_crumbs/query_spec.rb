@@ -21,7 +21,7 @@ module CouchCrumbs
     describe "#query" do
       
       it "should query a database or view" do
-        _query(File.join(@database.uri, "_all_docs")).should be_kind_of(Array)
+        query(File.join(@database.uri, "_all_docs")).should be_kind_of(Array)
       end
 
     end

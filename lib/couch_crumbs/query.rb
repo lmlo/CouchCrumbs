@@ -21,7 +21,7 @@ module CouchCrumbs
     # reduce=false Trunk only (0.9)
     # include_docs=true Trunk only (0.9)
     #
-    def _query(uri, opts = {})
+    def query(uri, opts = {})
       # Build our view query string
       query_params = "?"
       

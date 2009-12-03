@@ -304,7 +304,7 @@ module CouchCrumbs
         # Add the #all method
         view = design_doc.views(:name => "all")
       
-        _query("#{ view.uri }".downcase, opts).collect do |doc|
+        query("#{ view.uri }".downcase, opts).collect do |doc|
           if doc["type"]
             get!(doc["_id"])
           else

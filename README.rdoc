@@ -27,6 +27,15 @@ A small library for basic CouchDB document-based apps.
   # that don't otherwise specify a database
   CouchCrumbs::connect(:default_database => "example_database")
   
+  @server = CouchCrumbs.default_server
+  
+  # Make sure we're running
+  @server.status
+  
+  # Create or retrieve a database
+  @database = Database.new(:name => "example_database")
+  
+  
   # Create a class
   class Person
     
