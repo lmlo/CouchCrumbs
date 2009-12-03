@@ -1,14 +1,6 @@
 require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
-  
-  class Person
-    
-    include CouchCrumbs::Document
-    
-    property :name
-    
-  end
 
   describe Query do
    

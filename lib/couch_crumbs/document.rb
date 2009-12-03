@@ -155,16 +155,15 @@ module CouchCrumbs
       include CouchCrumbs::Query
       
       # Return the useful portion of module/class type
+      # @todo cache crumb_type on the including base class
       #
       def crumb_type
-        self.name.split('::').last.downcase
+        class_variable_get(:@@crumb_type)
       end
       
       # Return the database to use for this class
       #
       def database
-        class_variable_set(:@@database, CouchCrumbs::default_database) unless class_variable_defined?(:@@database)
-        
         class_variable_get(:@@database)
       end
       
@@ -178,20 +177,18 @@ module CouchCrumbs
       # Return all named properties for this document type
       #
       def properties
-        class_variable_set(:@@properties, []) unless class_variable_defined?(:@@properties)
-        
-        class_variable_get(:@@properties) || []
+        class_variable_get(:@@properties)
       end
       
       # Add a named property to a document type
       #
       def property(name, opts = {})
         name = name.to_sym
-        properties << name unless properties.include?(name) 
-        
+        properties << name
+                
         class_eval do
           # getter
-          define_method(name.to_sym) do
+          define_method(name) do
             raw[name.to_s]
           end
           # setter
@@ -371,6 +368,11 @@ module CouchCrumbs
     # Mixin our document methods
     #
     def self.included(base)
+      base.class_eval do
+        class_variable_set(:@@crumb_type, base.name.split('::').last.downcase)
+        class_variable_set(:@@database, CouchCrumbs::default_database)
+        class_variable_set(:@@properties, [])
+      end
       base.send(:include, InstanceMethods)
       base.extend(ClassMethods)
       base.class_eval do

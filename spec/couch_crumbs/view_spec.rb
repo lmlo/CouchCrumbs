@@ -2,16 +2,6 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
   
-  class Person
-    
-    include CouchCrumbs::Document
-    
-    property :name
-    
-    simple_view :name
-
-  end
-  
   describe View do
         
     describe "#basic" do

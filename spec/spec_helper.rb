@@ -9,3 +9,7 @@ require "couch_crumbs.rb"
 
 # Connect to the local/remote CouchDB server
 CouchCrumbs::connect
+
+# Bring in the fixtures
+require "fixtures"
+

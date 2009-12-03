@@ -2,14 +2,6 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 
 module CouchCrumbs
   
-  class Resource
-    
-    include CouchCrumbs::Document
-    
-    property :name
-    
-  end
-  
   describe Database do
         
     before do
