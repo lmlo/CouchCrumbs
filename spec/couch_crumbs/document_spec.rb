@@ -4,6 +4,8 @@ module CouchCrumbs
   
   class Person
     
+    attr_accessor :callbacks
+    
     include CouchCrumbs::Document
     
     property :name
@@ -14,33 +16,33 @@ module CouchCrumbs
     simple_view :name
 
     advanced_view :name => "title", :template => File.join("spec", "couch_crumbs", "templates", "person_title.js")
-    
+      
     def after_initialize
-      true
+      self.callbacks = [:after_initialize]
     end
     
     def before_create
-      true
+      self.callbacks << :before_create
     end
     
     def after_create
-      true
+      self.callbacks << :after_create
     end
     
     def before_save
-      true
+      self.callbacks << :before_save
     end
     
     def after_save
-      true
+      self.callbacks << :after_save
     end
     
     def before_destroy
-      true
+      self.callbacks << :before_destroy
     end
     
     def after_destroy
-      true
+      self.callbacks << :after_destroy
     end
     
   end
@@ -321,42 +323,64 @@ module CouchCrumbs
     describe "(callbacks)" do
       
       before(:each) do
-        @person = Person.new
+        @steve = Person.new
         
         # Remove the #freeze method to allow specs to run.
-        @person.stub!(:freeze)
+        @steve.stub!(:freeze)
       end
       
       describe "#after_initialize" do
                 
-        it "should be called"
+        it "should be called" do
+          @steve.callbacks.should include(:after_initialize)
+        end
         
       end
       
       describe "#before_create" do
         
-        it "should be called"
+        before do          
+          @bill = Person.create!
+        end
+        
+        it "should be called" do
+          @bill.callbacks.should include(:before_create)
+        end
+        
+        after do
+          @bill.destroy!
+        end
         
       end
       
       describe "#after_create" do
+      
+        before do
+          @bill = Person.create!
+        end
+
+        it "should be called" do
+          @bill.callbacks.should include(:after_create)
+        end
         
-        it "should be called"
+        after do
+          @bill.destroy!
+        end
         
       end
       
       describe "#before_save" do
         
         before do
-          @person.should_receive(:before_save).once
+          @steve.save!
         end
         
         it "should be called" do
-          @person.save!
+          @steve.callbacks.should include(:before_save)
         end
         
         after do
-          @person.destroy!
+          @steve.destroy!
         end
         
       end
@@ -364,15 +388,15 @@ module CouchCrumbs
       describe "#after_save" do
         
         before do
-          @person.should_receive(:after_save).once
+          @steve.save!
         end
         
         it "should be called" do
-          @person.save!
+          @steve.callbacks.should include(:after_save)
         end
         
         after do
-          @person.destroy!
+          @steve.destroy!
         end
                 
       end
@@ -380,11 +404,11 @@ module CouchCrumbs
       describe "#before_destroy" do
         
         before do
-          @person.should_receive(:before_destroy).once
+          @steve.destroy!
         end
         
         it "should be called" do
-          @person.destroy!
+          @steve.callbacks.should include(:before_destroy)
         end
 
       end
@@ -392,11 +416,11 @@ module CouchCrumbs
       describe "#after_destroy" do
         
         before do
-          @person.should_receive(:after_destroy).once
+          @steve.destroy!
         end
         
         it "should be called" do
-          @person.destroy!
+          @steve.callbacks.should include(:after_destroy)
         end
         
       end

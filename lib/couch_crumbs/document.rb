@@ -7,51 +7,149 @@ module CouchCrumbs
   #
   module Document
     
-    # Mixin our document methods
-    #
-    def self.included(base)
-      base.extend(ClassMethods)
-      base.class_eval do
-        
-        # Accessors
-        attr_accessor :uri, :raw
-        
-        # Override document #initialize
-        def initialize(opts = {})
-          raise ArgumentError.new("opts must be hash-like: #{ opts }") unless opts.respond_to?(:[])
+    module InstanceMethods
 
-          # If :json is present, we just parse it as an existing document
-          if opts[:json]
-            self.raw = JSON.parse(opts[:json])
-          else
-            self.raw = {}
-            
-            # Init special values
-            raw["_id"] = opts[:id] || database.server.uuids
-            raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
-            raw["type"] = self.class.crumb_type
-            raw["created_at"] = Time.now if self.class.properties.include?(:created_at)
-            
-            # Init named properties
-            opts.each_pair do |name, value|
-              send("#{ name }=", value)
-            end
-          end
-          
-          # This specific CouchDB document URI
-          self.uri = File.join(database.uri, id)
+      include CouchCrumbs::Query
+      
+      # Return the class-based database
+      def database
+        self.class.database
+      end
+      
+      # Return document id (typically a UUID)
+      #
+      def id
+        raw["_id"]
+      end
+      
+      # Set the document id
+      def id=(new_id)
+        raise "only new documents may set an id" unless new_document?
+        
+        raw["_id"] = new_id
+      end
+      
+      # Return document revision
+      #
+      def rev
+        raw["_rev"]
+      end
+      
+      # Return the CouchCrumb document type
+      #
+      def type
+        raw["type"]
+      end
+      
+      # Save a document to a database
+      #
+      def save!
+        raise "unable to save frozen documents" if frozen?
+        
+        # Before Callback
+        before_save
+        
+        # Update timestamps
+        raw["updated_at"] = Time.now if self.class.properties.include?(:updated_at)
+        
+        # Save to the DB
+        result = JSON.parse(RestClient.put(uri, raw.to_json))
+        
+        # Update ID and Rev properties
+        raw["_id"] = result["id"]
+        raw["_rev"] = result["rev"]
+        
+        # After callback
+        after_save
+        
+        result["ok"]
+      end
+    
+      # Update and save the named properties
+      #
+      def update_attributes!(attributes = {})
+        attributes.each_pair do |key, value|
+          raw[key.to_s] = value
         end
         
+        save!
       end
-      base.send(:include, InstanceMethods)
       
-      # Create an advanced view
-      view    = View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type)
-      design  = base.design_doc
-      # Add the view to the design doc
-      design.add_view(View.new(design, "all", view.to_json))
+      # Return true prior to document being saved
+      #
+      def new_document?
+        raw["_rev"].eql?(nil)
+      end
+      
+      # Remove document from the database
+      #
+      def destroy!
+        before_destroy
+
+        freeze
+        
+        # destruction status
+        status = nil
+        
+        # Since new documents haven't been saved yet, and frozen documents
+        # *can't* be saved, simply return true here.
+        if new_document?
+          status = true
+        else
+          result = JSON.parse(RestClient.delete(File.join(uri, "?rev=#{ rev }")))
+  
+          status = result["ok"]
+        end
+        
+        after_destroy
+        
+        status
+      end
+      
+      # Hook called after a document has been initialized
+      #            
+      def after_initialize
+        nil
+      end
+      
+      # Hook called during #create! before a document is #saved!
+      #
+      def before_create
+        nil
+      end
+
+      # Hook called during #create! after a document has #saved!
+      #
+      def after_create
+        nil
+      end
+
+      # Hook called during #save! before a document has #saved!
+      #
+      def before_save
+        nil
+      end
+
+      # Hook called during #save! after a document has #saved!
+      #
+      def after_save
+        nil
+      end
+
+      # Hook called during #destroy! before a document has been destroyed
+      #
+      def before_destroy
+        nil
+      end
+
+      # Hook called during #destroy! after a document has been destroyed
+      #
+      def after_destroy
+        nil
+      end
+      
     end
-            
+    
     module ClassMethods
       
       include CouchCrumbs::Query
@@ -170,11 +268,15 @@ module CouchCrumbs
       #
       def create!(opts = {})
         document = new(opts)
-
+        
         yield document if block_given?
         
+        document.before_create
+        
         document.save!
-
+        
+        document.after_create
+        
         document
       end
       
@@ -244,107 +346,53 @@ module CouchCrumbs
       
     end
     
-    module InstanceMethods
+    # Mixin our document methods
+    #
+    def self.included(base)
+      base.send(:include, InstanceMethods)
+      base.extend(ClassMethods)
+      base.class_eval do
+        
+        # Accessors
+        attr_accessor :uri, :raw
+        
+        # Override document #initialize
+        def initialize(opts = {})
+          raise ArgumentError.new("opts must be hash-like: #{ opts }") unless opts.respond_to?(:[])
 
-      include CouchCrumbs::Query
-      
-      # Return the class-based database
-      def database
-        self.class.database
-      end
-      
-      # Return document id (typically a UUID)
-      #
-      def id
-        raw["_id"]
-      end
-      
-      # Set the document id
-      def id=(new_id)
-        raise "only new documents may set an id" unless new_document?
-        
-        raw["_id"] = new_id
-      end
-      
-      # Return document revision
-      #
-      def rev
-        raw["_rev"]
-      end
-      
-      # Return the CouchCrumb document type
-      #
-      def type
-        raw["type"]
-      end
-      
-      # Save a document to a database
-      #
-      def save!
-        raise "unable to save frozen documents" if frozen?
-        
-        # Before Callback
-        before_save if respond_to?(:before_save)
-        
-        # Update timestamps
-        raw["updated_at"] = Time.now if self.class.properties.include?(:updated_at)
-        
-        # Save to the DB
-        result = JSON.parse(RestClient.put(uri, raw.to_json))
-        
-        # Update ID and Rev properties
-        raw["_id"] = result["id"]
-        raw["_rev"] = result["rev"]
-        
-        # After callback
-        after_save if respond_to?(:after_save)
-        
-        result["ok"]
-      end
-    
-      # Update and save the named properties
-      #
-      def update_attributes!(attributes = {})
-        attributes.each_pair do |key, value|
-          raw[key.to_s] = value
+          # If :json is present, we just parse it as an existing document
+          if opts[:json]
+            self.raw = JSON.parse(opts[:json])
+          else
+            self.raw = {}
+            
+            # Init special values
+            raw["_id"] = opts[:id] || database.server.uuids
+            raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
+            raw["type"] = self.class.crumb_type
+            raw["created_at"] = Time.now if self.class.properties.include?(:created_at)
+            
+            # Init named properties
+            opts.each_pair do |name, value|
+              send("#{ name }=", value)
+            end
+          end
+          
+          # This specific CouchDB document URI
+          self.uri = File.join(database.uri, id)
+          
+          after_initialize
         end
         
-        save!
       end
       
-      # Return true prior to document being saved
-      #
-      def new_document?
-        raw["_rev"].eql?(nil)
-      end
-      
-      # Remove document from the database
-      #
-      def destroy!
-        before_destroy if respond_to?(:before_destroy)
-
-        freeze
-        
-        # destruction status
-        status = nil
-        
-        # Since new documents haven't been saved yet, and frozen documents
-        # *can't* be saved, simply return true here.
-        if new_document?
-          status = true
-        else
-          result = JSON.parse(RestClient.delete(File.join(uri, "?rev=#{ rev }")))
-  
-          status = result["ok"]
-        end
-        
-        after_destroy if respond_to?(:after_destroy)
-        
-        status
-      end
-      
+      # Create an advanced view
+      view    = View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type)
+      design  = base.design_doc
+      # Add the view to the design doc
+      design.add_view(View.new(design, "all", view.to_json))
     end
-        
+    
   end
   
 end
