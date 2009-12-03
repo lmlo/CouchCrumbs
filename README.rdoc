@@ -4,24 +4,20 @@
 
 == DESCRIPTION:
 
-A small library for CouchDB document-based apps.
+A small library for basic CouchDB document-based apps.
 
 == FEATURES/PROBLEMS:
 
+- objects are JSON derived hashes 
+    (meaning properties support arrays, other hashes, dates, etc.)
 - named properties
 - timestamps (created_at/updated_at)
 - life-cycle callbacks
 - per-class database settings
 - simple "finder" views
 - advanced JavaScript views (in .js files)
-- objects are JSON derived hashes (meaning properties support arrays, other hashes, dates, etc.)
-- standard finder views can be mixed in at will (#all, #first, #last)
+- standard finder views (#all, #first, #last)
 - document relationships
-
-#===========================================================================
-
-- Add support for multiple parent/child relationships (refactor parent_id
-into model_name_id)
 
 == SYNOPSIS:
 
@@ -45,6 +41,20 @@ into model_name_id)
     # Add :created_at and :updated_at properties
     timestamps!
     
+    has_one :address
+    
+  end
+  
+  class Address
+    
+    include CouchCrumbs::Document
+    
+    property :location
+    
+    timestamps!
+    
+    belongs_to :person
+    
   end
   
   # Instantiate a new Person document with properties
@@ -54,18 +64,31 @@ into model_name_id)
   # Save the document (with #before_save and #after_save callbacks)
   @person.save!
   
-
+  
   # Get a single document from the database
   @steve = Person.get!(@person.id)
 
-   
+
   # Instantiate and save a new document in a single call (w/ callbacks)
   @bill = Person.create!(:name => "Bill", :status => "Retired")
   
   # Destroy a document
   @bill.destroy!
+
+
+  # Add an address to a person
+  @address = Address.create!(:location => "123 Main, Anytown USA")
+  
+  @steve.address = @address
   
   
+== LIMITATIONS:
+
+    - lacks support for attachments
+    - lacks support for show functions
+    - lacks support for many other aspects of CouchDB
+    - both sides of an association must be saved before being set
+    
 == REQUIREMENTS:
 
     sudo gem install rest_client, json, english
