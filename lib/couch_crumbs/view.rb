@@ -6,7 +6,7 @@ module CouchCrumbs
     
     include CouchCrumbs::Query
     
-    attr_accessor :raw, :name, :uri
+    attr_accessor :raw, :uri, :name
   
     # Return or create a new view object
     #
@@ -15,7 +15,18 @@ module CouchCrumbs
       self.uri = File.join(design.uri, "_view", name)
       self.raw = JSON.parse(json)
     end
-  
+    
+    # Create a new view and save the containing design doc
+    def self.create!(design, name, json)
+      view = new(design, name, json)
+      
+      design.add_view(view)
+      
+      design.save!
+      
+      view
+    end
+    
     # Return a view as a JSON hash
     #
     def self.simple(type, property)
@@ -26,7 +37,7 @@ module CouchCrumbs
       template.gsub!(/\#type/, type.to_s)
       template.gsub!(/\#property/, property.to_s.downcase)
       
-      JSON.parse(template)
+      template
     end
     
     # Return an advanced view as a JSON hash 
@@ -41,7 +52,7 @@ module CouchCrumbs
         template.gsub!(/\##{ key }/, value.to_s)
       end
       
-      JSON.parse(template)
+      template
     end
     
     # Return a unique hash of the raw json

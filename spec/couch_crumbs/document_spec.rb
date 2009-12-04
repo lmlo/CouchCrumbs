@@ -405,7 +405,7 @@ module CouchCrumbs
       
       describe "#all" do
         
-        before do
+        before do          
           Person.all.destroy!
           
           @person = Person.create!

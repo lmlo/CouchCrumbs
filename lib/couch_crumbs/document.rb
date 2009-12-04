@@ -8,7 +8,7 @@ module CouchCrumbs
   module Document
     
     module InstanceMethods
-
+      
       include CouchCrumbs::Query
       
       # Return the class-based database
@@ -227,12 +227,14 @@ module CouchCrumbs
         
         # Create simple views for the named properties
         args.each do |prop|
-          design.add_view(View.new(design, prop.to_s, View.simple(crumb_type, prop).to_json))
-        
+          view = View.create!(design, prop.to_s, View.simple(crumb_type, prop))
+                    
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do
-              JSON.parse(RestClient.get("#{ design.uri }/_view/#{ prop }".downcase))["rows"].collect do |row|                
-                get!(row["id"])
+              query(view.uri, :descending => false).collect do |row|
+                if row["type"]
+                  new(:hash => row)
+                end
               end
             end
           end
@@ -246,17 +248,15 @@ module CouchCrumbs
       def advanced_view(opts = {})
         raise ArgumentError.new("opts must contain a :name key") unless opts.has_key?(:name)
         raise ArgumentError.new("opts must contain a :template key") unless opts.has_key?(:template)
-        
-        design = design_doc
-        
-        view = View.advanced(opts[:template], opts)
-        
-        design.add_view(View.new(design, opts[:name], view.to_json))
-        
+                
+        view = View.create!(design_doc, opts[:name], View.advanced(opts[:template], opts))
+                
         self.class.instance_eval do
           define_method("by_#{ opts[:name] }".to_sym) do
-            JSON.parse(RestClient.get("#{ design.uri }/_view/#{ opts[:name] }".downcase))["rows"].collect do |row|                
-              get!(row["id"])
+            query(view.uri, :descending => false).collect do |row|
+              if row["type"]
+                new(:hash => row)
+              end
             end
           end
         end
@@ -387,6 +387,8 @@ module CouchCrumbs
           # If :json is present, we just parse it as an existing document
           if opts[:json]
             self.raw = JSON.parse(opts[:json])
+          elsif opts[:hash]
+            self.raw = opts[:hash]
           else
             self.raw = {}
             
@@ -411,10 +413,7 @@ module CouchCrumbs
       end
       
       # Create an advanced view
-      view    = View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type)
-      design  = base.design_doc
-      # Add the view to the design doc
-      design.add_view(View.new(design, "all", view.to_json))
+      View.create!(base.design_doc, "all", View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type))
     end
     
   end
