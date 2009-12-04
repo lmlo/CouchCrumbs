@@ -368,14 +368,15 @@ module CouchCrumbs
     # Mixin our document methods
     #
     def self.included(base)
+      base.send(:include, InstanceMethods)
+      base.extend(ClassMethods)
+      # Override #initialize
       base.class_eval do
+        
+        # Set class variables
         class_variable_set(:@@crumb_type, base.name.split('::').last.downcase)
         class_variable_set(:@@database, CouchCrumbs::default_database)
         class_variable_set(:@@properties, [])
-      end
-      base.send(:include, InstanceMethods)
-      base.extend(ClassMethods)
-      base.class_eval do
         
         # Accessors
         attr_accessor :uri, :raw
@@ -407,12 +408,13 @@ module CouchCrumbs
           # This specific CouchDB document URI
           self.uri = File.join(database.uri, id)
           
+          # Callback
           after_initialize
         end
         
       end
       
-      # Create an advanced view
+      # Create an advanced "all" view
       View.create!(base.design_doc, "all", View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type))
     end
     
