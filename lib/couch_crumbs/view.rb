@@ -20,7 +20,7 @@ module CouchCrumbs
     #
     def self.simple(type, property)
       # Read the 'simple' template (stripping newlines and tabs)
-      template = File.read(File.join(File.dirname(__FILE__), "templates", "basic.js")).gsub!(/(\n|\r|\t)/, '')
+      template = File.read(File.join(File.dirname(__FILE__), "templates", "simple.js")).gsub!(/(\n|\r|\t)/, '')
     
       template.gsub!(/\#name/, property.to_s.downcase)
       template.gsub!(/\#type/, type.to_s)

@@ -12,7 +12,7 @@ lib/couch_crumbs/document.rb
 lib/couch_crumbs/view.rb
 lib/couch_crumbs/templates/all.js
 lib/couch_crumbs/templates/design.js
-lib/couch_crumbs/templates/basic.js
+lib/couch_crumbs/templates/simple.js
 script/console
 script/destroy
 script/generate
