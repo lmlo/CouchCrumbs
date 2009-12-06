@@ -227,11 +227,11 @@ module CouchCrumbs
         
         # Create simple views for the named properties
         args.each do |prop|
-          view = View.create!(design, prop.to_s, View.simple(crumb_type, prop))
+          view = View.create!(design, prop.to_s, View.simple_json(crumb_type, prop))
                     
           self.class.instance_eval do
-            define_method("by_#{ prop }".to_sym) do
-              query(view.uri, :descending => false).collect do |row|
+            define_method("by_#{ prop }".to_sym) do |opts|
+              query(view.uri, {:descending => false}.merge(opts||{})).collect do |row|
                 if row["type"]
                   new(:hash => row)
                 end
@@ -249,7 +249,7 @@ module CouchCrumbs
         raise ArgumentError.new("opts must contain a :name key") unless opts.has_key?(:name)
         raise ArgumentError.new("opts must contain a :template key") unless opts.has_key?(:template)
                 
-        view = View.create!(design_doc, opts[:name], View.advanced(opts[:template], opts))
+        view = View.create!(design_doc, opts[:name], View.advanced_json(opts[:template], opts))
                 
         self.class.instance_eval do
           define_method("by_#{ opts[:name] }".to_sym) do
@@ -415,7 +415,7 @@ module CouchCrumbs
       end
       
       # Create an advanced "all" view
-      View.create!(base.design_doc, "all", View.advanced(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type))
+      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type))
     end
     
   end

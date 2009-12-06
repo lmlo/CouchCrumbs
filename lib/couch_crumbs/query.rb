@@ -22,6 +22,8 @@ module CouchCrumbs
     # include_docs=true Trunk only (0.9)
     #
     def query(uri, opts = {})
+      opts = {} unless opts
+      
       # Build our view query string
       query_params = "?"
       
@@ -60,6 +62,8 @@ module CouchCrumbs
       
       # Query the server and return an array of documents (will include design docs)
       JSON.parse(RestClient.get(query_string))["rows"].collect do |row|
+        debugger if $TRIP
+        
         row["doc"]
       end
     end

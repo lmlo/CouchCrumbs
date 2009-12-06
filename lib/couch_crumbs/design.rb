@@ -105,7 +105,7 @@ module CouchCrumbs
     # opts => supply a name to select a specific view
     #
     def views(opts = {})
-      if opts.has_key?(:name)         
+      if opts.has_key?(:name)
         View.new(self, opts[:name].to_s, {:name => raw["views"][opts[:name].to_s]}.to_json)
       else
         raw["views"].collect do |key, value|

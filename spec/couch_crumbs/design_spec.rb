@@ -89,7 +89,7 @@ module CouchCrumbs
         # Manually construct a design doc and view on Person
         @design = Design.get!(@database, :name => "append")
                 
-        @view = View.create!(@design, "title", View.simple(Person.crumb_type, :title))
+        @view = View.create!(@design, "title", View.simple_json(Person.crumb_type, :title))
       end
       
       it "should append a view to the list of views" do
