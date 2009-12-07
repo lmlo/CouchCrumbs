@@ -15,7 +15,7 @@ A small library for basic CouchDB document-based apps.
 - life-cycle callbacks
 - per-class database settings
 - simple "finder" views
-- advanced JavaScript views (in .js files)
+- advanced JavaScript views (in .json files)
 - standard finder views (#all, #first, #last)
 - document relationships
 

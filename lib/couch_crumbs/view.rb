@@ -31,7 +31,7 @@ module CouchCrumbs
     #
     def self.simple_json(type, property)
       # Read the 'simple' template (stripping newlines and tabs)
-      template = File.read(File.join(File.dirname(__FILE__), "templates", "simple.js")).gsub!(/(\n|\r|\t)/, '')
+      template = File.read(File.join(File.dirname(__FILE__), "templates", "simple.json")).gsub!(/(\n|\r|\t)/, '')
     
       template.gsub!(/\#name/, property.to_s.downcase)
       template.gsub!(/\#type/, type.to_s)
@@ -41,7 +41,7 @@ module CouchCrumbs
     end
     
     # Return an advanced view as a JSON hash 
-    # template => path to a .js template
+    # template => path to a .json template
     # opts => options to gsub into the template
     #
     def self.advanced_json(template, opts = {})

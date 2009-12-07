@@ -415,7 +415,7 @@ module CouchCrumbs
       end
       
       # Create an advanced "all" view
-      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "all.js"), :type => base.crumb_type))
+      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "all.json"), :type => base.crumb_type))
     end
     
   end

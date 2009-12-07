@@ -46,7 +46,7 @@ module CouchCrumbs
         self.raw = JSON.parse(opts[:json])
       elsif opts.has_key?(:name)        
         # Read the design doc template
-        template = File.read(File.join(File.dirname(__FILE__), "templates", "design.js"))
+        template = File.read(File.join(File.dirname(__FILE__), "templates", "design.json"))
 
         # Make our substitutions
         template.gsub!(/\#design_id/, "_design/#{ opts[:name] }")
