@@ -85,8 +85,8 @@ module CouchCrumbs
       end
       
       describe "views" do
-        
-        it "should return an array of all views defined for this class" do
+                
+        it "should return an array of all views defined for this class" do          
           Person.views.should be_kind_of(Array)
         end
         
@@ -141,7 +141,7 @@ module CouchCrumbs
         
       end
       
-      describe "#belongs_to" do
+      describe "#parent_document" do
 
         before do
           @person = Person.create!
@@ -177,7 +177,7 @@ module CouchCrumbs
 
       end
       
-      describe "#has_one" do
+      describe "#child_document" do
         
         before do
           @person = Person.new
@@ -197,13 +197,37 @@ module CouchCrumbs
           @person.should respond_to(:address=)
         end
         
-        it "should set the child document" do          
+        it "should set the child document" do
           @person.save!
           @address.save!
           
           @person.address = @address
           
           @person.address.id.should eql(@address.id)
+        end
+        
+      end
+      
+      describe "#child_documents" do
+        
+        before do
+          @person = Person.create!(:name => "Steve")
+          
+          @project = Project.create!(:name => "Website Review")
+                    
+          @person.add_project(@project)
+        end
+        
+        it "should add a child accessor" do
+          @person.should respond_to(:projects)
+        end
+        
+        it "should create a child accessor" do
+          @person.projects.collect{ |p| p.rev }.should eql([@project.rev])          
+        end
+        
+        after(:each) do
+          @project.destroy!
         end
         
       end

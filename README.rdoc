@@ -50,7 +50,7 @@ A small library for basic CouchDB document-based apps.
     # Add :created_at and :updated_at properties
     timestamps!
     
-    has_one :address
+    child_document :address
     
   end
   
@@ -62,7 +62,7 @@ A small library for basic CouchDB document-based apps.
     
     timestamps!
     
-    belongs_to :person
+    parent_document :person
     
   end
   

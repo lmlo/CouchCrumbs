@@ -61,9 +61,7 @@ module CouchCrumbs
       query_string = "#{ uri }#{ query_params }"
       
       # Query the server and return an array of documents (will include design docs)
-      JSON.parse(RestClient.get(query_string))["rows"].collect do |row|
-        debugger if $TRIP
-        
+      JSON.parse(RestClient.get(query_string))["rows"].collect do |row|        
         row["doc"]
       end
     end

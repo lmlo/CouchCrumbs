@@ -1,13 +1,5 @@
-class Resource
-  
-  include CouchCrumbs::Document
-  
-  property :name
-  
-end
-
 class Person
-  
+
   attr_accessor :callbacks
   
   include CouchCrumbs::Document
@@ -17,7 +9,8 @@ class Person
   
   timestamps!
   
-  has_one :address
+  child_document :address
+  child_documents :project
   
   simple_view :name
 
@@ -51,16 +44,4 @@ class Person
     self.callbacks << :after_destroy
   end
   
-end
-
-class Address
-  
-  include CouchCrumbs::Document
-  
-  use_database :alternate_database
-  
-  property :location
-  
-  belongs_to :person
-   
 end

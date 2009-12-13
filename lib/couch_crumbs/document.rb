@@ -1,4 +1,5 @@
-require "facets/string/modulize"
+require "facets/string"
+require "english/inflect"
 
 module CouchCrumbs
   
@@ -215,8 +216,8 @@ module CouchCrumbs
       
       # Return an array of all views for this class
       #
-      def views
-        design_doc.views
+      def views(opts = {})
+        design_doc.views(opts)
       end
             
       # Create a default view on a given property
@@ -311,52 +312,90 @@ module CouchCrumbs
         end
       end
       
-      #=======================================================================
-      
-      # Like belongs_to :person
+      # Like parent_document :person
       #
-      def belongs_to(model, opts = {})
+      def parent_document(model, opts = {})
         model = model.to_s.downcase
-
+        
         property("#{ model }_parent_id")
         
-        parent_class = eval(model.modulize)
-
+        begin
+          parent_class = eval(model.modulize)
+        rescue
+          require "#{ model.methodize }.rb"
+          retry
+        end
+                
         self.class_eval do
           define_method(model.to_sym) do
             parent_class.get!(raw["#{ model }_parent_id"])
           end
-
+        
           define_method("#{ model }=".to_sym) do |new_parent|
             raise ArgumentError.new("parent documents must be saved before children") if new_parent.new_document?
-
+        
             raw["#{ model }_parent_id"] = new_parent.id 
           end
         end
         
         nil
       end
-      
-      def has_many(model, opts = {})
-        nil
-      end
-      
-      # Like has_one :address
+          
+      # Like child_document :address
       #
-      def has_one(model, opts = {})
+      def child_document(model, opts = {})
         model = model.to_s.downcase
         
         property("#{ model }_child_id")
         
+        begin
+          child_class = eval(model.modulize)
+        rescue
+          require "#{ model.methodize }.rb"
+          retry
+        end
+        
         self.class_eval do
           define_method(model.to_sym) do
-            eval(model.modulize).get!(raw["#{ model }_child_id"])
+            child_class.get!(raw["#{ model }_child_id"])
           end
-
+        
           define_method("#{ model }=".to_sym) do |new_child|
             raise ArgumentError.new("parent documents must be saved before adding children") if new_document?
             
             raw["#{ model }_child_id"] = new_child.id 
+          end
+        end
+        
+        nil
+      end
+      
+      # Like has_many :projects
+      #
+      def child_documents(model, opts = {})
+        model = model.to_s.downcase
+        
+        begin
+          child_class = eval(model.modulize)
+        rescue
+          require "#{ model.methodize }.rb"
+          retry
+        end
+        
+        # Add a method to access the model's new view
+        self.class_eval do
+          # Add a view to the model class
+          View.create!(child_class.design_doc, "#{ crumb_type }_parent_id", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "children.json"), :parent => self.crumb_type, :child => model))
+          
+          define_method(English::Inflect.plural(model)) do
+            query(eval(model.modulize).views(:name => "#{ self.class.crumb_type }_parent_id").uri).collect do |doc|
+              child_class.get!(doc["_id"])
+            end
+          end
+          
+          define_method("add_#{ model }") do |new_child|
+            new_child.send("#{ self.class.crumb_type }_parent_id=", self.id)
+            new_child.save!
           end
         end
         

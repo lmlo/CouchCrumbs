@@ -11,5 +11,10 @@ require "couch_crumbs.rb"
 CouchCrumbs::connect
 
 # Bring in the fixtures
-require "fixtures"
+fixture_path = File.join(File.dirname(__FILE__), "fixtures")
 
+$:.unshift(fixture_path)
+
+Dir["#{ fixture_path }/*.rb"].each do |path|
+  require path
+end

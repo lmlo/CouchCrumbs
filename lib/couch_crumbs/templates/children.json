@@ -1,0 +1,5 @@
+{ 
+    "#parent_parent_id": { 
+        "map": "function(doc) {  if(doc.type == '#child'){ emit(doc['#parent_parent_id'], doc); }}" 
+    }
+}

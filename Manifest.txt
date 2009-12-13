@@ -11,6 +11,7 @@ lib/couch_crumbs/design.rb
 lib/couch_crumbs/document.rb
 lib/couch_crumbs/view.rb
 lib/couch_crumbs/templates/all.json
+lib/couch_crumbs/templates/children.json
 lib/couch_crumbs/templates/design.json
 lib/couch_crumbs/templates/simple.json
 script/console
