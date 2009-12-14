@@ -214,19 +214,30 @@ module CouchCrumbs
           @person = Person.create!(:name => "Steve")
           
           @project = Project.create!(:name => "Website Review")
-                    
-          @person.add_project(@project)
+          
+          @project.person = @person
+          
+          @project.save!
         end
         
-        it "should add a child accessor" do
+        it "should add an accessor for children" do
           @person.should respond_to(:projects)
         end
         
-        it "should create a child accessor" do
+        it "should add a child" do        
           @person.projects.collect{ |p| p.rev }.should eql([@project.rev])          
         end
         
+        it "should add an accessor for the parent" do
+          @project.should respond_to(:person)
+        end
+        
+        it "should add an accessor to set the parent" do
+          @project.should respond_to(:person=)
+        end
+          
         after(:each) do
+          @person.destroy!
           @project.destroy!
         end
         
