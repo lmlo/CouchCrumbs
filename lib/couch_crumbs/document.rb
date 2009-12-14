@@ -233,8 +233,8 @@ module CouchCrumbs
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do |opts|
               query(view.uri, {:descending => false}.merge(opts||{})).collect do |row|
-                if row["type"]
-                  new(:hash => row)
+                if row["doc"]["type"]
+                  new(:hash => row["doc"])
                 end
               end
             end
@@ -255,8 +255,8 @@ module CouchCrumbs
         self.class.instance_eval do
           define_method("by_#{ opts[:name] }".to_sym) do
             query(view.uri, :descending => false).collect do |row|
-              if row["type"]
-                new(:hash => row)
+              if row["doc"]["type"]
+                new(:hash => row["doc"])
               end
             end
           end
@@ -302,7 +302,9 @@ module CouchCrumbs
         # Add the #all method
         view = design_doc.views(:name => "all")
       
-        query("#{ view.uri }".downcase, opts).collect do |doc|
+        query("#{ view.uri }".downcase, opts).collect do |row|
+          doc = row["doc"]
+          
           if doc["type"]
             get!(doc["_id"])
           else
@@ -382,14 +384,14 @@ module CouchCrumbs
           retry
         end
         
+        # Add a view to the child class
+        View.create!(child_class.design_doc, "#{ crumb_type }_parent_id", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "children.json"), :parent => self.crumb_type, :child => model))
+        
         # Add a method to access the model's new view
         self.class_eval do
-          # Add a view to the model class
-          View.create!(child_class.design_doc, "#{ crumb_type }_parent_id", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "children.json"), :parent => self.crumb_type, :child => model))
-          
           define_method(English::Inflect.plural(model)) do
-            query(eval(model.modulize).views(:name => "#{ self.class.crumb_type }_parent_id").uri).collect do |doc|
-              child_class.get!(doc["_id"])
+            query(eval(model.modulize).views(:name => "#{ self.class.crumb_type }_parent_id").uri).collect do |row|
+              child_class.get!(row["doc"]["_id"])
             end
           end
           

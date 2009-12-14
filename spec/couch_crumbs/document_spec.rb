@@ -114,7 +114,9 @@ module CouchCrumbs
           @steve = Person.create!(:name => "Steve", :title => "CEO")
         end
         
-        it "should create an appropriate advanced view" do          
+        it "should create an appropriate advanced view" do
+          $TRIP = true
+          
           Person.by_title.collect{ |p| p.title }.should eql([@steve.title])
         end
         
@@ -211,9 +213,9 @@ module CouchCrumbs
       describe "#child_documents" do
         
         before do
-          @person = Person.create!(:name => "Steve")
-          
-          @project = Project.create!(:name => "Website Review")
+          @person   = Person.create!(:name => "Steve")
+          @project  = Project.create!(:name => "Website Review")
+          @ignore   = Project.create!(:name => "Not for Steve")
           
           @project.person = @person
           
@@ -224,8 +226,12 @@ module CouchCrumbs
           @person.should respond_to(:projects)
         end
         
-        it "should add a child" do        
+        it "should add a child" do
           @person.projects.collect{ |p| p.rev }.should eql([@project.rev])          
+        end
+        
+        it "should add a #add_child method" do
+          @person.should respond_to(:add_project)
         end
         
         it "should add an accessor for the parent" do

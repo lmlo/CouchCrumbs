@@ -29,7 +29,10 @@ module CouchCrumbs
     #
     def documents(opts = {})
       # Query the special built-in _all_docs view
-      query(File.join(uri, "_all_docs"), opts).collect do |doc|
+      query(File.join(uri, "_all_docs"), opts).collect do |row|
+        # Only interested in documents
+        doc = row["doc"]
+        
         # Regular documents
         if doc["type"]
           # Eval the class (with basic filtering, i.e. trusting your database)
@@ -58,9 +61,9 @@ module CouchCrumbs
     def destroy!
       freeze
       
-      result = JSON.parse(RestClient.delete(uri))["ok"]
+      result = JSON.parse(RestClient.delete(uri))
             
-      result
+      result["ok"]
     end
 
   end
