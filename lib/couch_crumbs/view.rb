@@ -46,7 +46,11 @@ module CouchCrumbs
     #
     def self.advanced_json(template, opts = {})
       # Read the given template (strip newlines to avoid JSON parser errors)
-      template = File.read(template)
+      begin
+        template = File.read(template)
+      rescue
+        debugger
+      end
       template = template.gsub(/(\n|\r|\t|\s)/, '')
       
       # Sub in any opts

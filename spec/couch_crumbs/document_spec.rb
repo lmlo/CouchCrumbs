@@ -115,8 +115,6 @@ module CouchCrumbs
         end
         
         it "should create an appropriate advanced view" do
-          $TRIP = true
-          
           Person.by_title.collect{ |p| p.title }.should eql([@steve.title])
         end
         
@@ -215,7 +213,9 @@ module CouchCrumbs
         before do
           @person   = Person.create!(:name => "Steve")
           @project  = Project.create!(:name => "Website Review")
-          @ignore   = Project.create!(:name => "Not for Steve")
+          3.times do
+            Project.create!(:name => rand(1_000_000).to_s)
+          end
           
           @project.person = @person
           
