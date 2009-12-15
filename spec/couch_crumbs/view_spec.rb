@@ -27,7 +27,7 @@ module CouchCrumbs
     describe "#advanced" do
       
       before do
-        @view = View.advanced_json(File.join("lib", "couch_crumbs", "templates", "all.json"), :type => Person.crumb_type)
+        @view = View.advanced_json(File.join("lib", "couch_crumbs", "templates", "all.json"), :crumb_type => Person.crumb_type)
       end
       
       it "should return advanced raw JSON" do

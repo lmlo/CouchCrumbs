@@ -34,9 +34,9 @@ module CouchCrumbs
         doc = row["doc"]
         
         # Regular documents
-        if doc["type"]
+        if doc["crumb_type"]
           # Eval the class (with basic filtering, i.e. trusting your database)
-          eval(doc["type"].gsub(/\W/i, '').capitalize!).get!(doc["_id"])
+          eval(doc["crumb_type"].gsub(/\W/i, '').capitalize!).get!(doc["_id"])
           
         elsif doc["_id"] =~ /^\_design\//
           # Design docs

@@ -1,5 +1,5 @@
 { 
   "all": {
-    "map": "function(doc) { if (doc.type == '#type') {emit(null, doc); } }"
+    "map": "function(doc) { if (doc.crumb_type == '#crumb_type') {emit(null, doc); } }"
   }
 }

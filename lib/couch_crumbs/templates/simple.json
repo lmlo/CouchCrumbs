@@ -1,5 +1,5 @@
 { 
   "#name": {
-    "map": "function(doc) { if (doc['type'] == '#type') { emit(doc['#property'], doc); } }"
+    "map": "function(doc) { if (doc.crumb_type == '#crumb_type') { emit(doc['#property'], doc); } }"
   } 
 }

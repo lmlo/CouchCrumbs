@@ -38,8 +38,8 @@ module CouchCrumbs
       
       # Return the CouchCrumb document type
       #
-      def type
-        raw["type"]
+      def crumb_type
+        raw["crumb_type"]
       end
       
       # Save a document to a database
@@ -233,7 +233,7 @@ module CouchCrumbs
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do |opts|
               query(view.uri, {:descending => false}.merge(opts||{})).collect do |row|
-                if row["doc"]["type"]
+                if row["doc"]["crumb_type"]
                   new(:hash => row["doc"])
                 end
               end
@@ -255,7 +255,7 @@ module CouchCrumbs
         self.class.instance_eval do
           define_method("by_#{ opts[:name] }".to_sym) do
             query(view.uri, :descending => false).collect do |row|
-              if row["doc"]["type"]
+              if row["doc"]["crumb_type"]
                 new(:hash => row["doc"])
               end
             end
@@ -305,7 +305,7 @@ module CouchCrumbs
         query("#{ view.uri }".downcase, opts).collect do |row|
           doc = row["doc"]
           
-          if doc["type"]
+          if doc["crumb_type"]
             get!(doc["_id"])
           else
             warn "skipping unknown document: #{ doc }"
@@ -437,7 +437,7 @@ module CouchCrumbs
             # Init special values
             raw["_id"] = opts[:id] || database.server.uuids
             raw["_rev"] = opts[:rev] unless opts[:rev].eql?(nil)
-            raw["type"] = self.class.crumb_type
+            raw["crumb_type"] = self.class.crumb_type
             raw["created_at"] = Time.now if self.class.properties.include?(:created_at)
             
             # Init named properties
@@ -456,7 +456,7 @@ module CouchCrumbs
       end
       
       # Create an advanced "all" view
-      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "all.json"), :type => base.crumb_type))
+      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "all.json"), :crumb_type => base.crumb_type))
     end
     
   end

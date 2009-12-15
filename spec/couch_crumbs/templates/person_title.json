@@ -1,5 +1,5 @@
 { 
   "title": {
-    "map": "function(doc) { if (doc['type'] == 'person') { emit(null, doc); } }"
+    "map": "function(doc) { if (doc.crumb_type == 'person') { emit(null, doc); } }"
   } 
 }

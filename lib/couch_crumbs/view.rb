@@ -34,7 +34,7 @@ module CouchCrumbs
       template = File.read(File.join(File.dirname(__FILE__), "templates", "simple.json")).gsub!(/(\n|\r|\t)/, '')
     
       template.gsub!(/\#name/, property.to_s.downcase)
-      template.gsub!(/\#type/, type.to_s)
+      template.gsub!(/\#crumb_type/, type.to_s)
       template.gsub!(/\#property/, property.to_s.downcase)
       
       template

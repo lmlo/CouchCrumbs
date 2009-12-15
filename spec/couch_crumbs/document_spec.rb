@@ -264,7 +264,7 @@ module CouchCrumbs
         end
         
         it "should have a type" do
-          @person.type.should eql("person")
+          @person.crumb_type.should eql("person")
         end
         
       end
