@@ -31,7 +31,7 @@ task :install => [:install_gem]
 desc "Run all examples with RCov"
 Spec::Rake::SpecTask.new('coverage') do |t|
   t.spec_opts = ['--format', 'specdoc', '-c']
-  t.spec_files = FileList['spec/*_spec.rb']
+  t.spec_files = FileList['spec/**/*_spec.rb']
   t.rcov = true
   t.rcov_opts = ['--exclude', '/gems/,spec/']
 end

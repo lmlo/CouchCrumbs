@@ -3,19 +3,7 @@ require File.dirname(__FILE__) + '/../spec_helper.rb'
 module CouchCrumbs
   
   describe View do
-    
-    describe "#initialize" do
-      
-      it "should initialize a new view"
-      
-    end
-    
-    describe "#create!" do
-      
-      it "should initialize a view and save to the containing design_doc"
-      
-    end
-    
+
     describe "#simple" do
             
       it "should return a simple JSON view" do

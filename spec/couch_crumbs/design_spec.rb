@@ -98,12 +98,6 @@ module CouchCrumbs
       
     end
     
-    describe "#view" do
-      
-      it "should support getting a specific view"
-      
-    end
-    
   end
   
 end
