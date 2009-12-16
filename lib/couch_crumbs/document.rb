@@ -253,10 +253,12 @@ module CouchCrumbs
         view = View.create!(design_doc, opts[:name], View.advanced_json(opts[:template], opts))
                 
         self.class.instance_eval do
-          define_method("by_#{ opts[:name] }".to_sym) do
+          define_method("#{ opts[:name] }".to_sym) do
             query(view.uri, :descending => false).collect do |row|
-              if row["doc"]["crumb_type"]
+              if row["doc"] && row["doc"]["crumb_type"]
                 new(:hash => row["doc"])
+              else
+                row
               end
             end
           end
@@ -385,7 +387,7 @@ module CouchCrumbs
         end
         
         # Add a view to the child class
-        View.create!(child_class.design_doc, "#{ crumb_type }_parent_id", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "children.json"), :parent => self.crumb_type, :child => model))
+        View.create!(child_class.design_doc, "#{ crumb_type }_parent_id", View.advanced_json(File.join(File.dirname(__FILE__), "json", "children.json"), :parent => self.crumb_type, :child => model))
         
         # Add a method to access the model's new view
         self.class_eval do
@@ -456,7 +458,7 @@ module CouchCrumbs
       end
       
       # Create an advanced "all" view
-      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "templates", "all.json"), :crumb_type => base.crumb_type))
+      View.create!(base.design_doc, "all", View.advanced_json(File.join(File.dirname(__FILE__), "json", "all.json"), :crumb_type => base.crumb_type))
     end
     
   end

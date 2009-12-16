@@ -14,7 +14,7 @@ class Person
   
   simple_view :name
 
-  advanced_view :name => "title", :template => File.join("spec", "couch_crumbs", "templates", "person_title.json")
+  advanced_view :name => "title", :template => File.join("spec", "couch_crumbs", "json", "person_title.json")
     
   def after_initialize
     self.callbacks = [:after_initialize]

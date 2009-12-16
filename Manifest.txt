@@ -10,10 +10,10 @@ lib/couch_crumbs/query.rb
 lib/couch_crumbs/design.rb
 lib/couch_crumbs/document.rb
 lib/couch_crumbs/view.rb
-lib/couch_crumbs/templates/all.json
-lib/couch_crumbs/templates/children.json
-lib/couch_crumbs/templates/design.json
-lib/couch_crumbs/templates/simple.json
+lib/couch_crumbs/json/all.json
+lib/couch_crumbs/json/children.json
+lib/couch_crumbs/json/design.json
+lib/couch_crumbs/json/simple.json
 script/console
 script/destroy
 script/generate

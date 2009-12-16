@@ -115,7 +115,7 @@ module CouchCrumbs
         end
         
         it "should create an appropriate advanced view" do
-          Person.by_title.collect{ |p| p.title }.should eql([@steve.title])
+          Person.title.collect{ |p| p.title }.should eql([@steve.title])
         end
         
         after do

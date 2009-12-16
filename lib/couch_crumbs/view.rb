@@ -31,7 +31,7 @@ module CouchCrumbs
     #
     def self.simple_json(type, property)
       # Read the 'simple' template (stripping newlines and tabs)
-      template = File.read(File.join(File.dirname(__FILE__), "templates", "simple.json")).gsub!(/(\n|\r|\t)/, '')
+      template = File.read(File.join(File.dirname(__FILE__), "json", "simple.json")).gsub!(/(\n|\r|\t)/, '')
     
       template.gsub!(/\#name/, property.to_s.downcase)
       template.gsub!(/\#crumb_type/, type.to_s)
@@ -51,7 +51,7 @@ module CouchCrumbs
       rescue
         debugger
       end
-      template = template.gsub(/(\n|\r|\t|\s)/, '')
+      template = template.gsub(/(\n|\r|\t|\s{2,})/, '')
       
       # Sub in any opts
       opts.each do |key, value|
