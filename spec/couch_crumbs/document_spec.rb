@@ -119,7 +119,7 @@ module CouchCrumbs
         end
         
         it "should create an appropriate advanced values view" do
-          Person.count.should be_kind_of(Hash)
+          Person.count.should be_kind_of(Integer)
         end
         
         after do

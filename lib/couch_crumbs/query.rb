@@ -67,6 +67,8 @@ module CouchCrumbs
     end
     
     # For querying views with a reduce function or other value-based views
+    # opts => :raw will return the raw view result, otherwise we try to
+    #   extract a value
     #
     def query_values(uri, opts = {})
       query_params = "?"
@@ -77,7 +79,14 @@ module CouchCrumbs
       
       query_string = "#{ uri }#{ query_params }"
       
-      JSON.parse(RestClient.get(query_string))
+      result = JSON.parse(RestClient.get(query_string))
+      
+      # Extract "value" key/value
+      if opts[:raw]
+        result
+      else
+        result["rows"].first["value"]
+      end
     end
     
 

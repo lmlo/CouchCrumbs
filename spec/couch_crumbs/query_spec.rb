@@ -36,7 +36,7 @@ module CouchCrumbs
       end
       
       it "should query a view for value results" do        
-        query_values(@view.uri).should be_kind_of(Hash)
+        query_values(@view.uri).should be_kind_of(Integer)
       end
       
     end
