@@ -26,16 +26,16 @@ module CouchCrumbs
         @resource = Resource.create!
       end
       
-      it "should return an array of all documents" do                
-        @database.documents.collect{ |doc| doc.id }.should include(@resource.id)
+      it "should return an array of all documents" do
+        @database.documents(:limit => 1_000_000).collect{ |doc| doc.id }.should include(@resource.id)
       end
       
-      it "should support optional view parameters" do        
+      it "should support optional view parameters" do
         @database.documents(:key => @resource.id).collect{ |d| d.id }.should eql([@resource.id])
       end
       
       after do
-        @database.documents.select{ |d| d.kind_of?(Document) }.destroy!
+        @resource.destroy!
       end
       
     end

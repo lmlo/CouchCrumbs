@@ -1,0 +1,16 @@
+{ 
+  "count": {
+    "map": "function(doc) 
+    { 
+        if(doc.crumb_type == 'person') 
+        { 
+            emit('count', 1);
+        }
+    }",
+    "reduce": "function(key, values, rereduce) 
+    { 
+        return sum(values);
+    }"
+  } 
+}
+

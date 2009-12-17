@@ -21,7 +21,7 @@ module CouchCrumbs
     # reduce=false Trunk only (0.9)
     # include_docs=true Trunk only (0.9)
     #
-    def query(uri, opts = {})
+    def query_docs(uri, opts = {})
       opts = {} unless opts
       
       # Build our view query string
@@ -61,9 +61,26 @@ module CouchCrumbs
       query_string = "#{ uri }#{ query_params }"
       
       # Query the server and return an array of documents (will include design docs)
-      JSON.parse(RestClient.get(query_string))["rows"]
+      JSON.parse(RestClient.get(query_string))["rows"].collect do |row|
+        row["doc"]
+      end
     end
     
+    # For querying views with a reduce function or other value-based views
+    #
+    def query_values(uri, opts = {})
+      query_params = "?"
+      
+      opts.each do |key, value|
+        query_params << %(&#{ key }=#{ value }) if value
+      end
+      
+      query_string = "#{ uri }#{ query_params }"
+      
+      JSON.parse(RestClient.get(query_string))
+    end
+    
+
   end
   
 end

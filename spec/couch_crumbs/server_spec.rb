@@ -39,11 +39,7 @@ module CouchCrumbs
           database.should be_kind_of(Database)
         end
       end
-      
-      after do
-        @server.databases.destroy!
-      end
-      
+
     end
     
     describe "#uuids" do

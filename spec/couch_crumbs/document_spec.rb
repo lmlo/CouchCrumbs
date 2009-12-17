@@ -92,14 +92,14 @@ module CouchCrumbs
         
       end
       
-      describe "#simple_view" do
+      describe "#doc_view" do
         
         before do
           @steve = Person.create!(:name => "Steve")
         end
         
         it "should create an appropriate view" do
-          Person.by_name.collect{ |p| p.rev }.should eql([@steve.rev])
+          Person.by_name.collect{ |p| p.rev }.should include(@steve.rev)
         end
         
         after do
@@ -108,14 +108,18 @@ module CouchCrumbs
         
       end
       
-      describe "#advanced_view" do
+      describe "#custom_view" do
         
         before do
           @steve = Person.create!(:name => "Steve", :title => "CEO")
         end
         
-        it "should create an appropriate advanced view" do
-          Person.title.collect{ |p| p.title }.should eql([@steve.title])
+        it "should create an appropriate advanced docs view" do
+          Person.title.collect{ |p| p.title }.should include(@steve.title)
+        end
+        
+        it "should create an appropriate advanced values view" do
+          Person.count.should be_kind_of(Hash)
         end
         
         after do

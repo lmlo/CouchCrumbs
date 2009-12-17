@@ -220,9 +220,9 @@ module CouchCrumbs
         design_doc.views(opts)
       end
             
-      # Create a default view on a given property
+      # Create a default view on a given property, returning documents
       #
-      def simple_view(*args)
+      def doc_view(*args)
         # Get the design doc for this document type
         design = design_doc
         
@@ -232,9 +232,11 @@ module CouchCrumbs
                     
           self.class.instance_eval do
             define_method("by_#{ prop }".to_sym) do |opts|
-              query(view.uri, {:descending => false}.merge(opts||{})).collect do |row|
-                if row["doc"]["crumb_type"]
-                  new(:hash => row["doc"])
+              query_docs(view.uri, {:descending => false}.merge(opts||{})).collect do |doc|
+                if doc["crumb_type"]
+                  new(:hash => doc)
+                else
+                  warn "skipping unknown document: #{ document }"
                 end
               end
             end
@@ -246,7 +248,7 @@ module CouchCrumbs
       
       # Create an advanced view from a given :template
       #
-      def advanced_view(opts = {})
+      def custom_view(opts = {})
         raise ArgumentError.new("opts must contain a :name key") unless opts.has_key?(:name)
         raise ArgumentError.new("opts must contain a :template key") unless opts.has_key?(:template)
                 
@@ -254,11 +256,15 @@ module CouchCrumbs
                 
         self.class.instance_eval do
           define_method("#{ opts[:name] }".to_sym) do
-            query(view.uri, :descending => false).collect do |row|
-              if row["doc"] && row["doc"]["crumb_type"]
-                new(:hash => row["doc"])
-              else
-                row
+            if view.has_reduce?
+              query_values(view.uri)
+            else
+              query_docs(view.uri, :descending => false).collect do |doc|
+                if doc["crumb_type"]
+                  new(:hash => doc)
+                else
+                  warn "skipping unknown document: #{ doc }"
+                end
               end
             end
           end
@@ -304,13 +310,12 @@ module CouchCrumbs
         # Add the #all method
         view = design_doc.views(:name => "all")
       
-        query("#{ view.uri }".downcase, opts).collect do |row|
-          doc = row["doc"]
-          
+        query_docs("#{ view.uri }".downcase, opts).collect do |doc|          
           if doc["crumb_type"]
             get!(doc["_id"])
           else
             warn "skipping unknown document: #{ doc }"
+            
             nil
           end
         end
@@ -392,8 +397,8 @@ module CouchCrumbs
         # Add a method to access the model's new view
         self.class_eval do
           define_method(English::Inflect.plural(model)) do
-            query(eval(model.modulize).views(:name => "#{ self.class.crumb_type }_parent_id").uri).collect do |row|
-              child_class.get!(row["doc"]["_id"])
+            query_docs(eval(model.modulize).views(:name => "#{ self.class.crumb_type }_parent_id").uri).collect do |doc|
+              child_class.get!(doc["_id"])
             end
           end
           

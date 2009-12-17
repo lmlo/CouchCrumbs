@@ -12,10 +12,11 @@ class Person
   child_document :address
   child_documents :project
   
-  simple_view :name
+  doc_view :name
 
-  advanced_view :name => "title", :template => File.join("spec", "couch_crumbs", "json", "person_title.json")
-    
+  custom_view :name => "title", :template => File.join("spec", "couch_crumbs", "json", "person_title.json")
+  custom_view :name => "count", :template => File.join("spec", "couch_crumbs", "json", "person_count.json")
+  
   def after_initialize
     self.callbacks = [:after_initialize]
   end

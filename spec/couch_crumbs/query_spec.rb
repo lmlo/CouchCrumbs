@@ -8,14 +8,37 @@ module CouchCrumbs
     
     before do
       @database = CouchCrumbs::default_database
+      
+      # Ensure we have at least a few documents
+      3.times do
+        Person.create!(:name => rand(1_000_000).to_s)
+      end
     end
     
-    describe "#query" do
+    describe "#query_docs" do
       
-      it "should query a database or view" do
-        query(File.join(@database.uri, "_all_docs")).should be_kind_of(Array)
+      before do        
+        @docs = query_docs(File.join(@database.uri, "_all_docs"))
       end
-
+      
+      it "should query a database or view for docs" do
+        @docs.each do |doc|
+          doc.should be_kind_of(Hash)
+        end
+      end
+      
+    end
+    
+    describe "#query_values" do
+      
+      before do
+        @view = Person.design_doc.views(:name => "count")
+      end
+      
+      it "should query a view for value results" do        
+        query_values(@view.uri).should be_kind_of(Hash)
+      end
+      
     end
     
   end

@@ -46,12 +46,7 @@ module CouchCrumbs
     #
     def self.advanced_json(template, opts = {})
       # Read the given template (strip newlines to avoid JSON parser errors)
-      begin
-        template = File.read(template)
-      rescue
-        debugger
-      end
-      template = template.gsub(/(\n|\r|\t|\s{2,})/, '')
+      template = File.read(template).gsub(/(\n|\r|\t|\s{2,})/, '')
       
       # Sub in any opts
       opts.each do |key, value|
@@ -65,6 +60,12 @@ module CouchCrumbs
     #
     def hash
       raw.hash
+    end
+    
+    # Return true if this view will reduce values
+    #
+    def has_reduce?      
+      raw[raw.keys.first].has_key?("reduce")
     end
     
   end
