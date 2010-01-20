@@ -13,7 +13,7 @@ $hoe = Hoe.spec 'couch_crumbs' do
   self.developer 'Often Void, Inc.', 'admin@oftenvoid.com'
   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # TODO this is default value
-  # self.extra_deps         = [['activesupport','>= 2.0.2']]
+  self.extra_deps         = [['english']]
   self.version              = "0.0.1"
 end
 
