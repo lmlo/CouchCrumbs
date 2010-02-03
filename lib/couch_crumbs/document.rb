@@ -1,5 +1,4 @@
 require "facets/string"
-require "english"
 require "english/inflect"
 
 module CouchCrumbs
