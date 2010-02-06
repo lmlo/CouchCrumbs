@@ -1,5 +1,9 @@
 $:.unshift(File.dirname(__FILE__))
 
+require "rest_client"
+require "json"
+require "english/inflect"
+require "facets/string"
 require "facets/string/modulize"
 
 require "core_ext/array.rb"

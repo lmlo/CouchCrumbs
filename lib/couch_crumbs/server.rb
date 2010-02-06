@@ -1,6 +1,3 @@
-require "rest_client"
-require "json"
-
 module CouchCrumbs
   
   # Represents an instance of a live running CouchDB server

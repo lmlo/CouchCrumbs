@@ -1,6 +1,3 @@
-require "facets/string"
-require "english/inflect"
-
 module CouchCrumbs
   
   # Document is an abstract base module that you mixin to your own classes
