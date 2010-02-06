@@ -14,7 +14,7 @@ $hoe = Hoe.spec 'couch_crumbs' do
   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
   self.rubyforge_name       = self.name # TODO this is default value
   self.extra_deps         = [['english'], ['facets'], ['rest-client'], ['json']]
-  self.version              = "0.0.1"
+  self.version              = "0.0.2"
 end
 
 #require 'newgem/tasks'
